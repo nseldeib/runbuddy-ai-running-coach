@@ -1,0 +1,68 @@
+{
+  "capabilities": {
+    "http-mocks": "verified",
+    "interactions-click": "verified",
+    "interactions-touch-gestures": "manual",
+    "layout-web": "not-applicable",
+    "native-clipboard": "manual",
+    "native-geolocation": "manual",
+    "native-haptics": "manual",
+    "native-network": "manual",
+    "native-storage": "manual",
+    "real-device": "manual",
+    "routing": "verified"
+  },
+  "commands": {
+    "staticChecks": "swift build",
+    "test": "swift test --parallel --disable-swift-testing --xunit-output .codeyam/swift-tests.xml"
+  },
+  "components": {
+    "fileExtensions": [
+      ".swift"
+    ],
+    "primitives": [
+      "Text",
+      "VStack",
+      "HStack",
+      "ZStack",
+      "Button",
+      "Image",
+      "TextField",
+      "Toggle"
+    ]
+  },
+  "data": {
+    "type": "observable-model"
+  },
+  "defaultScreenSize": "iPhone 16",
+  "id": "swift-ios-swiftui",
+  "name": "Swift + SwiftUI (iOS)",
+  "preview": {
+    "kind": "simulator-ios"
+  },
+  "routing": {
+    "type": "file-based"
+  },
+  "screenSizes": {
+    "iPad": {
+      "height": 1180,
+      "width": 820
+    },
+    "iPhone 16": {
+      "height": 852,
+      "width": 393
+    }
+  },
+  "simulator": {
+    "buildSignalRegex": "Succeeded",
+    "platform": "ios",
+    "preflightChecks": [
+      "xcode-installed",
+      "ios-platform-sdk"
+    ],
+    "scheme": "App"
+  },
+  "styling": {
+    "type": "swiftui-tokens"
+  }
+}

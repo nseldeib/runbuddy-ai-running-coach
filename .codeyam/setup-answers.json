@@ -1,0 +1,8 @@
+{
+  "appFormats": [
+    "mobile"
+  ],
+  "designApproach": "skip",
+  "techStackId": "swift-ios-swiftui",
+  "startingSurface": "dashboard"
+}

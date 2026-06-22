@@ -1,0 +1,153 @@
+━━━ BEGIN STEP 4: Prepare ━━━
+
+NEXT ACTION (same turn — do not stop):
+
+  EXACT_TASK_TITLE: Complete codeyam editor step 4: 'Prepare' and move on to step 5: 'Seed Data'
+
+# UI Flow 4 / 25: Prepare
+
+**Feature:** Today Dashboard
+
+Prepare the project environment and dependencies for prototyping.
+
+## Instructions
+
+RESUMING this step. Check what was already done before repeating work.
+  Tip: Run verify-routes and client-errors to see what still needs fixing.
+  (Resuming in a fresh session? TaskList may be empty — the previous-step task lived in the prior session's in-memory store. Skip the close-prior step; just create THIS step's task and continue.)
+
+Get the project ready to build.
+
+
+
+Scaffold the project:
+[ ] Pick a tech stack via the data-driven recommender — do NOT invent
+    options from training-data intuition:
+      codeyam-editor-dev editor stacks-recommend --format json
+    * If `preselectedStackId` is present in the JSON, the user already
+       chose this stack in the new-project questionnaire. Scaffold it
+       directly via `codeyam-editor-dev editor template <preselectedStackId>`
+       and do NOT present a picker or ask the user anything — re-asking
+       a question they already answered is the bug this avoids.
+    * Otherwise present the picker from `recommendations[]` verbatim. The
+       top entry is the recommended option when its `fit` is `strong` or
+       `adjacent`; never marked recommended when the top `fit` is `mismatch`
+       or `projectShape` is `unknown` (ask the user to clarify instead).
+       The `reason` field is the option's description verbatim — do not
+       paraphrase.
+    Verify: codeyam-editor-dev editor stacks-recommend --format json > /dev/null
+
+[ ] Run `codeyam-editor-dev editor template <techStackId>` to scaffold,
+    install dependencies, init git, and configure CodeYam — using the
+    `stackId` from the option the user picked. One command copies the chosen
+    template, runs npm install, initializes git, runs codeyam init, and
+    refreshes the editor.
+    Verify: test -f package.json && test -f .codeyam/stack.json
+
+    CRITICAL: Do NOT run `create-next-app`, `npx create-*`, `vite create`, or
+    any other third-party bootstrap against the project root. Those commands
+    see `.codeyam/` and `.codex/` as conflicting files and fail; scaffolding
+    into `/tmp` and merging by hand is NOT supported. `codeyam-editor-dev editor
+    template` is the ONLY correct way to scaffold a fresh CodeYam project.
+
+    Before editing any scaffolded file (`prisma/schema.prisma`, `app/layout.tsx`,
+    `app/page.tsx`, etc.), open it with the `Read` tool first — a Bash `cat`
+    does not satisfy the Write tool's read-tracking, so a Write-first attempt
+    is rejected with "File has not been read yet" and wastes a round-trip.
+
+[ ] Verify the build toolchain is present before advancing:
+      codeyam-editor-dev editor toolchain-preflight --format json
+    Reads the stack's declared `toolchain` requirements from `.codeyam/stack.json`
+    and checks each. A stack that declares none (most web stacks, needing only the
+    already-present `node`) reports `"ok": true` — a no-op. If any check reports
+    `"passed": false`, DO NOT advance: present its `installCmd` + `estCost` and
+    OFFER to run the setup. For a large download (SDKs, platform images — GB-range
+    or tens of minutes), surface the size/time cost and get explicit consent
+    BEFORE starting, as the iOS pre-flight contract in CLAUDE.md does for
+    `xcodebuild -downloadPlatform iOS`. Re-run the preflight after install.
+    Verify: codeyam-editor-dev editor toolchain-preflight --format json
+
+
+
+[ ] Confirm the seed adapter is wired
+    This stack persists through local storage, not a database — no schema file,
+    migration, `db:push`/`db:seed`, or API routes. Declare your shapes in
+    `.codeyam/data-structure.json` (see below); scenarios seed each app state and
+    production starts empty. CodeYam installed a standard seed adapter at
+    `.codeyam/seed-adapter.ts` during setup — review it to confirm it matches the
+    shapes you declare, then seed a state with:  <path-to-seed-data.json>
+    Verify: test -f .codeyam/seed-adapter.ts
+
+
+
+Create the data structure config:
+[ ] Create `.codeyam/data-structure.json` describing all data sources
+    This tells the editor what data the app uses and how it's stored. It is a
+    JSON array; each entry describes one data source:
+    { "name": "Drink", "description": "...", "category": "datastore", "order": 1,
+      "fields": [{ "name": "id", "type": "number", "isId": true, "required": true }, ...] }
+    category: "datastore" = persisted data (DB, localStorage); "mock-api" =
+    mocked external API responses. order: 1 = primary data store, 2 = secondary.
+    Do NOT include types only used as component props.
+
+
+
+Background vs Foreground:
+  Editor CLI commands that mutate project state (journal, glossary-add,
+  glossary-update, register, plan-select — anything that writes to .codeyam/)
+  MUST run foreground with a bounded timeout; they finish in seconds and print
+  to stdout/stderr. Background shells (run_in_background: true) are only for the
+  dev server and long builds you explicitly need to parallelize. Never poll one
+  with sleep+tail — use BashOutput on the shell ID. Never re-invoke a CLI write
+  command already running; `editor journal` holds `.codeyam/tmp/journal.lock` and
+  a concurrent invocation errors with `another journal write is in progress (pid
+  N)` — treat that as a double-write signal, not something to work around.
+
+Read the glossary through the CLI, never with the `Read` tool.
+  `.codeyam/glossary.json` exceeds the Read tool's token limit. Use
+  `codeyam-editor-dev editor glossary-find <name>` (flags: `--prefix`, `--substring`,
+  `--feature`, `--format`) for a single lookup; `glossary-list`,
+  `glossary-untested`, or `glossary-by-tag <tag>` for table-wide projections. To
+  grep directly, read `.codeyam/glossary-index.txt` (a regenerated line-oriented
+  sidecar — see the `glossary_index_file` entry).
+
+
+When done, move to the next step: `codeyam-editor-dev editor 5`
+
+━━━ TASK ━━━
+If TaskList/TaskCreate/TaskUpdate are not loaded in this session, call `ToolSearch` with `select:TaskList,TaskCreate,TaskUpdate` first.
+
+Hand off from the previous step's task to this step's task. Procedure:
+  1. Run TaskList
+  2. If a task titled exactly `Complete codeyam editor step 3: 'Confirm' and move on to step 4: 'Prepare'` exists and is not yet completed, run TaskUpdate with status "completed" on it
+  3. Run TaskCreate with the EXACT title below and set it to in_progress:
+
+EXACT_TASK_TITLE: Complete codeyam editor step 4: 'Prepare' and move on to step 5: 'Seed Data'
+
+When you finish this step's checklist, mark this task completed BEFORE running `codeyam-editor-dev editor advance`. The advance gate will block if the current-step task is not both created and completed.
+Do NOT use status "deleted" on any step task — tasks are check-off records of completed work.
+
+━━━ END OF STEP ━━━
+
+This is a non-gate step. Do NOT wait for user confirmation.
+Do NOT write a recap. Do NOT ask the user "ready to advance?" — they did
+not opt into a checkpoint. Recaps belong at gate steps, not here.
+
+If the checklist surfaces a finding that requires a user decision (unrelated test failures, surprising state, ambiguous next action), use AskUserQuestion with 2-4 concrete options — never an inline numbered list. If AskUserQuestion is not loaded, call `ToolSearch` with `select:AskUserQuestion` first.
+
+When you have finished the checklist AND marked the task completed, run:
+
+  Bash: codeyam-editor-dev editor advance
+
+━━━ BEGIN STEP 4: Prepare ━━━
+
+NEXT ACTION (same turn — do not stop):
+
+  EXACT_TASK_TITLE: Complete codeyam editor step 4: 'Prepare' and move on to step 5: 'Seed Data'
+
+  1. TaskCreate with the EXACT title above, status in_progress
+  2. Run the step 4 checklist (printed above this trailer)
+  3. TaskUpdate completed
+  4. Run `codeyam-editor editor advance`
+
+Tail-truncated this output? Re-run without piping: codeyam-editor editor advance

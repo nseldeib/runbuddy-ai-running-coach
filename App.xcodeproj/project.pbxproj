@@ -1,0 +1,178 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		111111111111111111111111 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 222222222222222222222222 /* App.swift */; };
+		5EE3CA342998948F002C86E4 /* AppCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5EE3CA332998948F002C86E4 /* AppCore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		000000000000000000000000 /* App.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		222222222222222222222222 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
+		333333333333333333333333 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		444444444444444444444444 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5EE3CA342998948F002C86E4 /* AppCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		555555555555555555555555 = {
+			isa = PBXGroup;
+			children = (
+				666666666666666666666666 /* App */,
+				777777777777777777777777 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		666666666666666666666666 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				222222222222222222222222 /* App.swift */,
+				333333333333333333333333 /* Info.plist */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		777777777777777777777777 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				000000000000000000000000 /* App.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		888888888888888888888888 /* App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 999999999999999999999999 /* Build configuration list for PBXNativeTarget "App" */;
+			buildPhases = (
+				AAAA00000000000000000000 /* Sources */,
+				444444444444444444444444 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = App;
+			packageProductDependencies = (
+				5EE3CA332998948F002C86E4 /* AppCore */,
+			);
+			productName = App;
+			productReference = 000000000000000000000000 /* App.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BBBBBBBBBBBBBBBBBBBBBBBB /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+			};
+			buildConfigurationList = CCCCCCCCCCCCCCCCCCCCCCCC /* Build configuration list for PBXProject "App" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 555555555555555555555555;
+			packageReferences = (
+				5E768911F94FAF5B7FB66121 /* XCLocalSwiftPackageReference "" */,
+			);
+			productRefGroup = 777777777777777777777777 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				888888888888888888888888 /* App */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AAAA00000000000000000000 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				111111111111111111111111 /* App.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		DDDD00000000000000000000 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = App/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.App;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		EEEE00000000000000000000 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		999999999999999999999999 /* Build configuration list for PBXNativeTarget "App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DDDD00000000000000000000 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CCCCCCCCCCCCCCCCCCCCCCCC /* Build configuration list for PBXProject "App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EEEE00000000000000000000 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		5E768911F94FAF5B7FB66121 /* XCLocalSwiftPackageReference "" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5EE3CA332998948F002C86E4 /* AppCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5E768911F94FAF5B7FB66121 /* XCLocalSwiftPackageReference "" */;
+			productName = AppCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = BBBBBBBBBBBBBBBBBBBBBBBB /* Project object */;
+}

@@ -1,0 +1,241 @@
+{
+  "$comment": "Per-developer settings (port, provider, proxy ports, startCommand, etc.) belong in editor.local.json. That file is gitignored and is deep-merged on top of this one at load time. See CLAUDE.md or run `codeyam-editor editor config-show` to inspect the effective config.",
+  "apps": [
+    {
+      "dir": ".",
+      "name": "RunBuddy",
+      "type": "mobile"
+    }
+  ],
+  "audit": {
+    "allowedDocumentationOnlySlugs": [
+      "post-merge-drift-sweep"
+    ],
+    "branchBaseRef": "main",
+    "cargoCoverage": {
+      "enabled": true
+    },
+    "glossarySkip": [
+      {
+        "filePath": ".claude/hooks/_step_metadata.py",
+        "name": "_empty_mode_table",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/_step_metadata.py",
+        "name": "_kv_pairs_to_int_dict",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/_step_metadata.py",
+        "name": "_string_list",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/_step_metadata.py",
+        "name": "cli_command",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/_step_metadata.py",
+        "name": "load_step_metadata",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/_step_metadata.py",
+        "name": "resolve_mode_table",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/editor-pretool-hook.py",
+        "name": "_preview_hint",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/editor-pretool-hook.py",
+        "name": "_slug_label",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/editor-pretool-hook.py",
+        "name": "git_add_paths_are_plans_only",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/editor-pretool-hook.py",
+        "name": "main",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/editor-pretool-hook.py",
+        "name": "staged_paths_are_plans_only",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/editor-step-hook.py",
+        "name": "_terminal_signal_missing",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/editor-step-hook.py",
+        "name": "detect_event",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/editor-step-hook.py",
+        "name": "label_signals_pre_commit_warning",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/editor-step-hook.py",
+        "name": "label_signals_user_feedback_phase",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/editor-step-hook.py",
+        "name": "log_event",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/editor-step-hook.py",
+        "name": "main",
+        "reason": "derive-generated"
+      },
+      {
+        "filePath": ".claude/hooks/editor-step-hook.py",
+        "name": "resolve_mode",
+        "reason": "derive-generated"
+      }
+    ],
+    "itemShape": {
+      "changeWithoutVerify": "note",
+      "compound": "warning",
+      "vague": "warning"
+    },
+    "scenarioFreshnessDays": 14,
+    "stepBudget": {
+      "maxChecklistItems": 6,
+      "maxLines": 80,
+      "severity": "warning"
+    },
+    "testNamingConventions": {}
+  },
+  "catalogAutoAdd": {
+    "allow": [],
+    "deny": []
+  },
+  "cleanup": {
+    "completedPlanRetention": 20,
+    "logCompress": true,
+    "logDeleteDays": 30,
+    "logRotateDays": 7,
+    "screenshotPruneOrphans": true,
+    "tmpDeleteHours": 24
+  },
+  "coverageThresholds": {
+    "global": {
+      "minLinePercent": 90.0
+    }
+  },
+  "database": null,
+  "defaultScreenSize": "iPhone 16",
+  "env": {},
+  "files": {
+    "eventLogMaxBytes": null,
+    "journalShardEntries": null,
+    "logKeepRotated": null,
+    "textLogMaxBytes": null
+  },
+  "formatters": [],
+  "git": {
+    "commitQueue": {
+      "enabled": true,
+      "heartbeatIntervalSec": 15,
+      "machineAliveHookTimeoutMs": 5000,
+      "maxHookPrunePerSweep": 10,
+      "maxProgressStallSec": 900,
+      "pollIntervalMs": 2000,
+      "serverHeartbeatIntervalSec": 60,
+      "waitTimeoutSec": 300
+    },
+    "planClaims": {
+      "enabled": true,
+      "fetchIntervalSec": 3
+    }
+  },
+  "hooks": {},
+  "port": 3000,
+  "projectDescription": "Yes — the prior spec did **not** fully account for AI running coach functionality. Here’s the updated direction.\n\n# RunBuddy — Open-Source AI Running Coach for iOS\n\n## Product vision\n\nRunBuddy is an open-source Swift iOS app that helps users move more consistently, train smarter, and build a sustainable running habit with the help of a friendly AI coach.\n\nThe app combines:\n\n* Apple HealthKit activity data\n* Strava run history\n* Personalized AI coaching\n* A playful Buddy mascot\n* Transparent, open-source architecture\n* CodeYam-powered development workflows and simulations\n\nRunBuddy should feel like a friendly running coach in your pocket: encouraging, practical, adaptive, and never shame-based.\n\n## Strategic goal\n\nRunBuddy is both a useful personal fitness app and a showcase project for CodeYam.\n\nIt should demonstrate how CodeYam helps builders create polished, production-quality software by using AI-native development workflows, simulation-first product iteration, and well-scoped code changes.\n\n## Target user\n\nInitial target user: me.\n\nI want to:\n\n* Hit 10K steps per day\n* Move regularly throughout the day\n* Build running fitness safely\n* Avoid injury\n* Train for races without overtraining\n* Understand my progress from Apple Health and Strava\n* Get coaching that feels personal, not generic\n\nFuture users:\n\n* Beginner and intermediate runners\n* People returning to fitness\n* Busy founders/operators who need gentle movement nudges\n* Runners who want simple coaching without a full training platform\n\n## Core positioning\n\nRunBuddy is not Strava, Garmin Connect, Nike Run Club, or TrainingPeaks.\n\nIt is a friendly, open-source AI running coach focused on:\n\n* Daily movement consistency\n* Sustainable running habits\n* Injury-aware coaching\n* Personalized encouragement\n* Clear next actions\n\n## MVP feature set\n\n### 1. Today dashboard\n\nThe home screen shows:\n\n* Current step count\n* Progress toward daily step goal\n* Time since last movement\n* Active minutes\n* Latest run/walk\n* Weekly training load snapshot\n* Buddy mood\n* AI coach recommendation\n\nExample recommendation:\n\n> You’re at 6,400 steps and haven’t moved in 92 minutes. A 12-minute walk would get you close to your next milestone without adding meaningful training stress.\n\n### 2. HealthKit integration\n\nHealthKit is the source of truth for iOS activity data.\n\nRead:\n\n* Step count\n* Walking/running distance\n* Workouts\n* Active energy\n* Heart rate, optional\n* Resting heart rate, optional\n* Sleep, optional later\n* Running route data, later\n\nWrite, later:\n\n* App-recorded workouts\n* Coach-generated workout metadata\n* Notes/tags, if supported appropriately\n\n### 3. Strava integration\n\nStrava is used for running history and social/activity context.\n\nMVP:\n\n* OAuth connection\n* Import recent activities\n* Show Strava runs/walks/rides\n* Deduplicate against HealthKit workouts\n* Use Strava data in AI coaching context\n\nLater:\n\n* Upload RunBuddy-recorded activities to Strava\n* Add private coach notes\n* Detect route preferences\n* Compare effort trends over time\n\n### 4. AI running coach\n\nThe AI coach should provide practical, personalized, injury-aware guidance.\n\nMVP coach capabilities:\n\n* Daily movement recommendation\n* Weekly running plan suggestion\n* Run/walk/rest day recommendation\n* Race goal planning\n* Post-run reflection\n* Simple injury-risk flags\n* Training consistency feedback\n* Encouraging “what should I do today?” answer\n\nExample prompts the user can ask:\n\n* “What should I do today?”\n* “Can I run or should I rest?”\n* “How do I get to 10K steps without overdoing it?”\n* “Am I increasing mileage too fast?”\n* “Make me a plan for my October trail half.”\n* “I feel tired today — what’s a good low-risk option?”\n\n### 5. Coach context engine\n\nThe AI coach should not be a generic chatbot. It should receive structured context.\n\nInputs:\n\n* Last 7/14/30 days of steps\n* Weekly mileage\n* Recent workouts\n* Run frequency\n* Longest recent run\n* Recent rest days\n* Streaks\n* User goals\n* Upcoming races\n* User notes: soreness, energy, stress, sleep\n* Optional Strava effort data\n\nExample structured context:\n\n```json\n{\n  \"dailySteps\": 6420,\n  \"goalSteps\": 10000,\n  \"daysRunThisWeek\": 2,\n  \"weeklyMileage\": 12.4,\n  \"lastRun\": {\n    \"distanceMiles\": 4.2,\n    \"pace\": \"10:15/mi\",\n    \"date\": \"2026-06-21\"\n  },\n  \"upcomingGoal\": \"October trail half marathon\",\n  \"userPreference\": \"injury-avoidant, sustainable progress\"\n}\n```\n\n### 6. Coaching safety rules\n\nThe coach should be conservative and practical.\n\nRules:\n\n* Do not diagnose injuries.\n* Encourage medical care for sharp, persistent, worsening, or unusual pain.\n* Avoid aggressive mileage jumps.\n* Prefer rest, walking, mobility, or easy effort when data suggests fatigue.\n* Explain uncertainty.\n* Separate fitness coaching from medical advice.\n* Use user goals, but never push through warning signs.\n\n### 7. Movement reminders\n\nSmart nudges based on context:\n\n* Inactivity\n* Step gap\n* Time of day\n* Recent training load\n* Calendar-aware later\n* Weather-aware later\n\nExamples:\n\n* “A 9-minute walk gets you back on track.”\n* “You ran yesterday, so Buddy suggests an easy walk instead of another hard effort.”\n* “You’re 2,100 steps away. One podcast lap?”\n\n### 8. Buddy mascot layer\n\nBuddy makes the app delightful.\n\nBuddy states:\n\n* Resting\n* Ready\n* Jogging\n* Cheering\n* Concerned\n* Celebrating\n* Recovery mode\n\nBuddy should visually reflect:\n\n* Step progress\n* Streaks\n* Coach recommendation\n* Recovery needs\n* Race countdown\n\n## CodeYam showcase layer\n\nRunBuddy should be intentionally built as a public CodeYam showcase.\n\n### What it should demonstrate\n\n* AI-native product development\n* Swift app architecture\n* HealthKit + Strava integration\n* LLM-powered coaching workflows\n* Simulation-first feature iteration\n* Clean contributor-friendly codebase\n* Automated scenario testing\n* Transparent product specs and decision logs\n\n### CodeYam-specific showcase ideas\n\nInclude a `/docs/codeyam/` folder with:\n\n* Product spec\n* AI development workflow notes\n* Simulation scenarios\n* Prompt logs or sanitized examples\n* Feature decision records\n* Before/after examples of CodeYam-assisted changes\n* Architecture walkthrough\n\nExample docs:\n\n```text\ndocs/codeyam/\n  product-spec.md\n  simulation-scenarios.md\n  ai-coach-context.md\n  development-workflow.md\n  decision-log.md\n  demo-script.md\n```\n\n### Simulation scenarios\n\nUse RunBuddy to show how CodeYam can test user flows before shipping.\n\nExample scenarios:\n\n1. User opens app at 8 pm with 3,200 steps.\n2. User ran hard yesterday and asks if they should run today.\n3. User is 800 steps from goal at 9:30 pm.\n4. User has increased mileage 40% week over week.\n5. User connects Strava but denies HealthKit permissions.\n6. User has no activity history yet.\n7. User is training for a trail half marathon.\n8. User reports knee pain after a run.\n\nEach scenario should define:\n\n* User state\n* App data\n* Expected coach response\n* UI state\n* Edge cases\n* Safety considerations\n\n## Technical architecture\n\n### iOS app\n\n* Swift\n* SwiftUI\n* HealthKit\n* CoreLocation\n* UserNotifications\n* SwiftData or SQLite\n* Swift Charts\n* URLSession\n* ASWebAuthenticationSession\n\n### AI coach service\n\nFor open-source friendliness, support multiple modes:\n\n1. Local mock coach for development\n2. Bring-your-own API key mode\n3. Optional hosted coach backend\n4. Future local model mode, if practical\n\n### Backend\n\nNeeded primarily for:\n\n* Strava OAuth token exchange\n* Optional AI coach endpoint\n* Optional privacy-preserving analytics\n* Optional demo mode\n\nSuggested backend:\n\n* TypeScript\n* Hono, Express, or Next.js API routes\n* SQLite/Postgres optional\n* Minimal user accounts, ideally none for MVP\n\n## Open-source repo structure\n\n```text\nRunBuddy/\n  apps/\n    ios/\n      RunBuddyApp/\n        App/\n        Features/\n          Onboarding/\n          Today/\n          Coach/\n          ActivityHistory/\n          Settings/\n        Services/\n          HealthKit/\n          Strava/\n          Notifications/\n          Coach/\n          Persistence/\n        DesignSystem/\n        Buddy/\n  services/\n    strava-oauth/\n    coach-api/\n  docs/\n    product-spec.md\n    privacy.md\n    contributing.md\n    healthkit-setup.md\n    strava-setup.md\n    codeyam/\n      simulation-scenarios.md\n      ai-coach-context.md\n      development-workflow.md\n      decision-log.md\n      demo-script.md\n  README.md\n  LICENSE\n```\n\n## AI coach UX\n\nThe coach should appear in three places:\n\n### 1. Today card\n\nOne clear recommendation.\n\n> Today: easy movement day. You ran yesterday, so Buddy suggests 30–45 minutes of walking and light mobility.\n\n### 2. Ask Coach\n\nChat-style interface for fitness questions.\n\n### 3. Weekly review\n\nA generated summary:\n\n* What went well\n* What changed\n* Training risk\n* Suggested next week\n* One focus area\n\n## Privacy principles\n\nRunBuddy should be privacy-forward by design.\n\n* HealthKit data stays local by default.\n* Strava connection is optional.\n* AI coach should use the minimum necessary context.\n* Users can inspect what data is sent to the coach.\n* No hidden analytics.\n* No account required for MVP.\n* Clear delete/export controls.\n\n## MVP milestones\n\n### Milestone 1: HealthKit movement dashboard\n\n* Onboarding\n* HealthKit permissions\n* Step dashboard\n* Buddy states\n* 10K goal progress\n\n### Milestone 2: AI coach mock mode\n\n* Structured local coach context\n* Hardcoded/mock coaching responses\n* Coach card on Today screen\n* Ask Coach screen\n\n### Milestone 3: Real AI coach\n\n* BYO API key or local dev config\n* Coach response generation\n* Safety rules\n* Context preview\n\n### Milestone 4: Activity history\n\n* HealthKit workouts\n* Weekly mileage\n* Run frequency\n* Training load basics\n\n### Milestone 5: Strava import\n\n* OAuth flow\n* Import activities\n* Deduplication\n* Strava activity detail\n\n### Milestone 6: CodeYam showcase polish\n\n* Public README\n* Demo video\n* Simulation docs\n* Architecture docs\n* Contributor guide\n* Good-first-issue backlog\n\n## Good first open-source issues\n\n* Add a new Buddy mood\n* Improve empty states\n* Add sample coaching scenario\n* Add HealthKit permission explainer copy\n* Add weekly summary UI\n* Add Strava setup docs\n* Add unit tests for step goal logic\n* Add mock activity fixtures\n* Add accessibility labels\n* Improve README screenshots\n\n## Demo narrative\n\nRunBuddy should make a great CodeYam demo because it has:\n\n* Real user data integrations\n* Complex permission flows\n* AI behavior that needs testing\n* Safety-sensitive recommendations\n* A delightful consumer UX layer\n* Meaningful edge cases\n* Strong open-source contributor appeal\n\nDemo storyline:\n\n> We used CodeYam to build and iterate on an open-source Swift fitness app with HealthKit, Strava, and an AI running coach. CodeYam helped us simulate real user states, test coaching logic, catch confusing flows, and refine the product before shipping.\n\n## Success metrics\n\nPersonal MVP success:\n\n* I open it daily.\n* It helps me hit 10K steps more consistently.\n* It gives me useful run/rest guidance.\n* It helps me avoid overtraining.\n* I can use it as a real training companion.\n\nOSS success:\n\n* Clear README\n* Easy local setup\n* Contributors can understand the architecture\n* At least 10 good-first issues\n* Demo scenarios are compelling\n* Project clearly showcases CodeYam\n\nProduct success:\n\n* Users describe it as friendly, useful, and less intimidating than other running apps.\n* The AI coach gives practical recommendations.\n* HealthKit and Strava integrations feel reliable.\n* The Buddy mascot makes the app memorable.\n\nThe biggest product shift: **RunBuddy becomes both a real personal AI coach and a public CodeYam proof-of-work project** — not just a cute step tracker.\n",
+  "projectTitle": "RunBuddy",
+  "provider": "claude",
+  "proxy": {
+    "controlPort": 14199,
+    "dbPort": 14101,
+    "httpPort": 14100,
+    "httpsPassthrough": [],
+    "httpsPreview": false
+  },
+  "runnerTimeout": {
+    "floorSeconds": 900,
+    "headroomSeconds": 90,
+    "mode": "auto"
+  },
+  "scenarios": {
+    "dir": ".codeyam/scenarios"
+  },
+  "screenSizes": {
+    "iPad": {
+      "height": 1180,
+      "width": 820
+    },
+    "iPhone 16": {
+      "height": 852,
+      "width": 393
+    }
+  },
+  "server": {
+    "autoRestartOnStaleBinary": true,
+    "maxRssMb": 6144
+  },
+  "silenceHookStderr": false,
+  "startCommand": "",
+  "staticChecks": [
+    {
+      "command": "swift build",
+      "description": "Build / compile check (swift build)",
+      "excludePatterns": [
+        "**/.build/**",
+        "**/build/**",
+        "**/.gradle/**"
+      ],
+      "filePatterns": [
+        "**/*.swift"
+      ],
+      "name": "build"
+    }
+  ],
+  "testParallelism": {
+    "loadGuard": true
+  },
+  "testPartitions": [],
+  "testRunners": [
+    {
+      "command": "swift test --parallel --disable-swift-testing --xunit-output .codeyam/swift-tests.xml",
+      "excludePatterns": [
+        "**/.build/**",
+        "**/build/**"
+      ],
+      "name": "tests",
+      "outputFormat": "junit-xml",
+      "outputPath": ".codeyam/swift-tests.xml",
+      "sourceFilePatterns": [
+        "**/*.swift"
+      ],
+      "targetedCommand": "swift test --parallel --disable-swift-testing --xunit-output .codeyam/swift-tests.xml --filter \"{test_names}\"",
+      "testFilePatterns": [
+        "**/Tests/**/*.swift",
+        "**/*Tests.swift"
+      ]
+    }
+  ]
+}

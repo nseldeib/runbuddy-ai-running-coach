@@ -1,0 +1,38 @@
+{
+  "_README": [
+    "This file overrides .codeyam/editor.json on a per-developer basis.",
+    "It is gitignored — your changes never reach the team.",
+    "Anything in editor.json is overridable. Common overrides:",
+    "  port, provider, startCommand, proxy.*, apps[].port,",
+    "  apps[].startCommand, database, env",
+    "Set values with `codeyam-editor editor config-override <path> <value>`",
+    "or edit this file by hand. A `null` value restores the base default.",
+    "See `_examples` below for real-shaped values you can copy up to the top level."
+  ],
+  "_examples": {
+    "apps": [
+      {
+        "port": 5565,
+        "startCommand": "npx vite --port 5565 --host 127.0.0.1"
+      }
+    ],
+    "database": "postgres://localhost:5433/codeyam_dev",
+    "env": {
+      "RUST_LOG": "idle=trace"
+    },
+    "git": {
+      "planClaims": {
+        "enabled": true,
+        "fetchIntervalSec": 10,
+        "remote": null
+      }
+    },
+    "port": 5566,
+    "provider": "codex",
+    "proxy": {
+      "controlPort": 14684,
+      "httpPort": 14585
+    },
+    "startCommand": "cd ui && npx vite --port 5566 --host 127.0.0.1"
+  }
+}
