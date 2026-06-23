@@ -1,101 +1,150 @@
-━━━ BEGIN STEP 23: Commit ━━━
+━━━ BEGIN STEP 24: Push ━━━
 
 NEXT ACTION (same turn — do not stop):
 
-  EXACT_TASK_TITLE: Complete codeyam editor step 23: 'Commit' and move on to step 24: 'Push'
+  EXACT_TASK_TITLE: Complete codeyam editor step 24: 'Push' and move on to step 25: 'Feature Complete'
 
-# UI Flow 23 / 25: Commit
+# UI Flow 24 / 25: Push
 
 **Feature:** Accessible & Responsive Design — Contrast, Dynamic Type, Layout
 
-Commit all changes to git.
+Push the branch to the remote repository.
 
 ## Instructions
 
 RESUMING this step. Check what was already done before repeating work.
   (Resuming in a fresh session? TaskList may be empty — the previous-step task lived in the prior session's in-memory store. Skip the close-prior step; just create THIS step's task and continue.)
 
-Commit all changes for this feature.
-
-The user already approved at the `ui-present` (UI) or `backend-present` (backend) gate. Execute the commit.
+<!-- max-lines: 160 -->
+Push the commit to the remote repository.
 
 Checklist:
-[ ] Recapture screenshots: `codeyam-editor-dev editor recapture-stale --skip-when-clean --include-aged --max-seconds 300 --max-attempts 3`
-    Exits non-zero if (a) any per-slug capture failed, (b) the dev server is
-    unhealthy on pre-flight, or (c) the overall budget expired with zero
-    successes. If the pre-flight bails with "dev server unhealthy", fix the
-    dev server first — do NOT pass `--skip-when-clean` to bypass it (the flag
-    only short-circuits the empty-coverage fast path, not the pre-flight).
-    `stage-feature` will also refuse to run if coverage still shows stale or
-    missing screenshots, so dismissing per-slug failures is no longer possible.
-    `--skip-when-clean` short-circuits with `{"skipped_clean": true}` when
-    audit already reported zero stale + zero missing — common case for
-    backend-only features. `--include-aged` unions the audit's
-    `AGED_STALE_SCREENSHOTS` set into the recapture target, so a scenario
-    whose source mtime crossed the freshness threshold (e.g. an unrelated
-    `git checkout` bumped it forward) is re-captured here — without it,
-    the dep-tree-only check would report `0 stale` while the audit gate
-    afterward still fires on those slugs, leaving the workflow stuck.
-    `--max-seconds` caps each attempt at 5 minutes;
-    individual slugs have their own 60s timeout. `--max-attempts 3` retries
-    after a per-attempt budget hit (stdout JSON `budget_expired: true`) so a
-    single 300s window can't silently leave stale screenshots behind — each
-    retry re-evaluates coverage and only touches slugs that are still stale.
-    The final stdout JSON includes `attempts`, `budget_expired`, and
-    `skipped_count` so you can confirm the run drained the set. Do NOT pipe
-    this through `tail` — full output (per-slug `→ Capturing` / `✓` / `✗` /
-    `⏱` lines plus the `▶ Pass N/M` startup line) is the only signal you
-    have if a scenario hangs. Per-slug timeouts now fail the command;
-    investigate the dev server or the scenario before retrying.
-[ ] Stage the feature: `codeyam-editor-dev editor stage-feature \
-       --path <feature-file-1> --path <feature-file-2> ...`
-    Pass --path for every NON-`.codeyam/` file you edited during this
-    feature. All non-ignored `.codeyam/` files are staged automatically
-    — do NOT ask the user about any `.codeyam/` path, and do NOT pass
-    them via --path. `.gitignore` is the authoritative skip-list.
-    If you have many changed files, you can use `stage-feature --from-status`
-    to stage every dirty file in the working tree. Use `--exclude-prefix`
-    to skip directories you didn't touch.
-    `stage-feature` accepts both file paths and directory paths. File paths
-    work even if they are currently untracked inside an untracked directory.
-    The command prints `stagedInternal` (auto), `stagedExternal`
-    (your --path args), and `untouchedExternal` (other dirty files not
-    yours — leave them for the `push` slug). If `untouchedExternal` is
-    non-empty, that is fine; the `push` slug's `commit-state` will surface them.
-    `stage-feature` also runs `session-cleanup` (orphan screenshots, log
-    rotation, tmp prune) per `editor.json::cleanup` BEFORE the dirty-tree
-    scan, so any deletions land in `stagedInternal` and fold into the
-    feature commit. Best-effort; failures log to stderr.
-[ ] If `.gitignore` was modified, untrack newly-ignored files:
-    `git ls-files --cached | git check-ignore --no-index --stdin`,
-    then `git rm --cached <file>` for each match and re-run
-    `stage-feature`.
-[ ] Commit: `git commit -m "feat: <title>" -m "<journal description>"`
-    The commit message body MUST match the journal description exactly.
-    Verify: git rev-parse HEAD
+[ ] Audit leftover dirty state and probe remote setup: `codeyam-editor-dev editor commit-state`
+    This scans `git status`, partitions dirty files into:
+      - `.codeyam/` leftovers (regenerated caches, merge-driver files, etc.) —
+        silently committed as a separate `chore: update codeyam state` commit
+      - external leftovers (anything outside `.codeyam/`) — returned in the
+        `external` array for you to surface to the user
+    `commit-state` also runs `session-cleanup` (orphan screenshots, log rotation,
+    tmp prune) per `editor.json::cleanup` BEFORE the scan, so any deletions land
+    in the chore commit. Best-effort; failures log to stderr.
+    Refuses to commit if any `.codeyam/` JSON file is unparseable — fix it or
+    regenerate it before retrying.
+    **`.gitignore` is the authoritative skip-list. Files outside `.codeyam/`
+    that survive `.gitignore` are project state and should be committed by
+    default — do not prompt for untracked non-ignored files.**
 
-[ ] If the pre-commit hook fails, read the error, fix the issue,
-    re-run `stage-feature` (the cache regeneration may dirty more
-    `.codeyam/` files — they get auto-staged), and commit again.
-[ ] Review the commit with `git log --stat -1` to confirm the right files were included
-[ ] Don't worry about regenerated .codeyam/ caches dirtied AFTER this commit
-    (post-commit hook output) — the `push` slug captures any such leftovers in a
-    separate `chore: update codeyam state` commit before the push. Caches
-    already dirty BEFORE the commit are now folded into the feature commit
-    itself by `stage-feature`.
+    The JSON envelope ALSO carries a `remoteSetup` block:
+      `{state, remoteName, ghInstalled, ghAuthenticated, suggestedDefaultRepoName}`
+    Read these structured fields rather than re-probing remote / `gh` state
+    yourself. Surfacing raw shell-probe output at the user is what this
+    checklist exists to retire.
+
+[ ] If the `external` array from `commit-state` is non-empty, partition it
+    by `status` and act on each bucket separately:
+
+    - `untracked` (status == "untracked") — auto-commit with NO prompt.
+      Stage the paths and create a single `chore: include <paths>` commit.
+      Add a one-line note in your user-facing summary so the user can see
+      what got swept in (e.g. "Also committed:
+      `.claude/scheduled_tasks.lock` (untracked, not gitignored).").
+
+    - `modified` (any status other than "untracked" — modifications to
+      existing tracked files) — these *might* be in-progress work from
+      another session, so ask before acting. The `external[i]` entries
+      already carry `path`, `added`, `removed`, and `summary` — read
+      those structured fields rather than re-running a per-file diff
+      probe in chat. Then use `AskUserQuestion` with a single combined prompt for
+      the whole batch (not per file):
+
+        "These are modifications to tracked files outside the work we
+         just did:
+         - <path> — +<added>/-<removed> (<summary>)
+         - ...
+         Should I commit them with the feature?"
+
+      Options:
+        Option 1: "Commit them now with the feature (Recommended)" →
+                  stage the paths and create a `chore: include <paths>`
+                  commit
+        Option 2: "Leave them alone — part of other work in progress" → skip
+        Option 3: "Discard these changes" → `git checkout -- <paths>` (confirm first)
+
+    Leftover-file decisions and remote-setup decisions MUST fire as separate
+    `AskUserQuestion` calls. Bundling them mixes "what should this commit
+    contain?" with "should this project go on GitHub?" — two unrelated
+    mental models that confuse non-technical users. Wait for the
+    leftover-file answer before moving on to the remote-setup branch below.
+
+[ ] Branch on `remoteSetup.state` from the `commit-state` envelope:
+
+    - `remote-configured` → offer to push (AskUserQuestion — STOP and wait for the user's answer before proceeding):
+      ask (AskUserQuestion): "Would you like me to push this commit to the remote?" with options "Yes, push" and "No, skip"
+      If the user says yes, run: `codeyam-editor-dev editor push`
+      IMPORTANT: Use `codeyam-editor-dev editor push`, NOT raw `git push`.
+      Fast Commit: pushing a deferred commit to THIS feature branch is
+      routine — `editor push` ships it without the emergency
+      `--allow-deferred --reason` ceremony and prints a calm "Fast mode:
+      pushing N deferred commit(s) ... finalize owed before merge to
+      <primary>" note. (Pushing deferred commits directly to the primary
+      branch is still a hard block — the "no un-finalized work on
+      primary" invariant moves to the merge boundary, where the owed
+      `session-finalize` clears it.)
+      If the push output shows `"pulled": true`, new code was pulled via rebase.
+      In that case, run `codeyam-editor-dev editor post-merge-drift-sweep` BEFORE
+      refreshing tests (canonical sequence: reconcile-registry + reconcile-
+      glossary + audit; work through any `remainingActions`). Then refresh the
+      test cache: `codeyam-editor-dev editor refresh-tests`.
+      (Fast Commit defers this drift sweep + refresh to the eventual
+      `session-finalize` too — if you are in fast mode, a `"pulled": true`
+      push just proceeds; the sweep is owed at finalize, not here.)
+      If tests fail after the pull, fix the issues, commit, and re-push.
+      (For the longer rationale, see
+      `codeyam-editor-dev editor step --slug post-merge-drift-sweep`.)
+      (The canonical project config is `.codeyam/editor.json` — `.codeyam/config.json` is a stale artifact from older scaffolders, do not read or write it; the `no-stale-config-json` static check fails the build if it reappears.)
+
+    - `no-remote-ready` → (AskUserQuestion — STOP and wait for the user's answer before proceeding):
+      ask (AskUserQuestion): "I just saved your work locally. Want me to also back this up to GitHub so you can access it from another computer or share it with others?" with options "Back it up on GitHub — private (only me) (Recommended)", "Back it up on GitHub — public (anyone can see)", and "Keep it on my computer for now"
+      On either "back it up" option, ask `AskUserQuestion` for the project
+      name on GitHub. Default to `remoteSetup.suggestedDefaultRepoName` from
+      the envelope as the recommended option, with "Other" available for a
+      custom name. Then run:
+      `codeyam-editor-dev editor github-setup --visibility {private|public} --name <name>`
+      IMPORTANT: Use the helper, NOT raw `gh repo create`. On success,
+      surface the repo URL from the helper's `url` field to the user.
+      On "Keep it on my computer for now", acknowledge in one short line
+      ("Got it — keeping this on your computer.") and proceed. Do NOT ask a
+      follow-up name question.
+
+    - `no-remote-gh-missing` → print exactly one short chat line:
+      "Backing up to GitHub needs the `gh` command-line tool installed first.
+      Skipping for now — install it from https://cli.github.com when you'd
+      like to set this up."
+      Do NOT fire `AskUserQuestion` — there is no useful question here. Proceed.
+
+    - `no-remote-gh-unauthed` → print exactly one short chat line:
+      "Backing up to GitHub needs you to sign in once with `gh auth login`.
+      Skipping for now — run that when you'd like to set this up."
+      Do NOT fire `AskUserQuestion` — there is no useful question here. Proceed.
+
+The completion modal fires in the next slug (`feature-complete`), not here.
+Push is purely about pushing.
+Task management is handled by the ━━━ TASK ━━━ directive below.
+
+Wait for user confirmation before moving on.
 
 
-When done, move to the next step: `codeyam-editor-dev editor 24`
+When done, move to the next step: `codeyam-editor-dev editor 25`
 
 ━━━ TASK ━━━
 If TaskList/TaskCreate/TaskUpdate are not loaded in this session, call `ToolSearch` with `select:TaskList,TaskCreate,TaskUpdate` first.
 
 Hand off from the previous step's task to this step's task. Procedure:
   1. Run TaskList
-  2. If a task titled exactly `Complete codeyam editor step 22: 'Finalize' and move on to step 23: 'Commit'` exists and is not yet completed, run TaskUpdate with status "completed" on it
+  2. If a task titled exactly `Complete codeyam editor step 23: 'Commit' and move on to step 24: 'Push'` exists and is not yet completed, run TaskUpdate with status "completed" on it
   3. Run TaskCreate with the EXACT title below and set it to in_progress:
 
-EXACT_TASK_TITLE: Complete codeyam editor step 23: 'Commit' and move on to step 24: 'Push'
+EXACT_TASK_TITLE: Complete codeyam editor step 24: 'Push' and move on to step 25: 'Feature Complete'
 
 When you finish this step's checklist, mark this task completed BEFORE running `codeyam-editor-dev editor advance`. The advance gate will block if the current-step task is not both created and completed.
 Do NOT use status "deleted" on any step task — tasks are check-off records of completed work.
@@ -112,14 +161,14 @@ When you have finished the checklist AND marked the task completed, run:
 
   Bash: codeyam-editor-dev editor advance
 
-━━━ BEGIN STEP 23: Commit ━━━
+━━━ BEGIN STEP 24: Push ━━━
 
 NEXT ACTION (same turn — do not stop):
 
-  EXACT_TASK_TITLE: Complete codeyam editor step 23: 'Commit' and move on to step 24: 'Push'
+  EXACT_TASK_TITLE: Complete codeyam editor step 24: 'Push' and move on to step 25: 'Feature Complete'
 
   1. TaskCreate with the EXACT title above, status in_progress
-  2. Run the step 23 checklist (printed above this trailer)
+  2. Run the step 24 checklist (printed above this trailer)
   3. TaskUpdate completed
   4. Run `codeyam-editor editor advance`
 
