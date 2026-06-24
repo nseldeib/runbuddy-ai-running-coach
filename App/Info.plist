@@ -22,6 +22,10 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- Otterpace uses only standard HTTPS/TLS (export-exempt), so App Store
+	     uploads skip the export-compliance prompt. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSHealthShareUsageDescription</key>
 	<string>Otterpace reads your steps, distance, and active energy from Apple Health — on your device — so Buddy can coach you toward your daily goal without overtraining.</string>
 	<!-- OAuth redirect target for "Connect Strava" (otterpace://strava-callback). -->
