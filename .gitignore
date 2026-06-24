@@ -81,3 +81,6 @@ blob-report/
 .codeyam/test-cache.json
 .codeyam/test-cache/
 .codeyam/test-run-marker.json
+
+# Local Claude Code tooling (skills, hooks, settings) — not part of the shipped project
+.claude/
