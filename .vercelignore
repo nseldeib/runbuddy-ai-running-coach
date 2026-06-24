@@ -1,0 +1,19 @@
+# This repo is an iOS app + a small web deploy. Vercel only needs the web bits
+# (site/ + api/ + package.json + vercel.json + tsconfig.json). Everything below is
+# the Swift app, build artifacts, tooling state, and docs — excluded so the upload
+# is small and the deployment stays clean.
+.git/
+.build/
+.swiftpm/
+Sources/
+App/
+Tests/
+Scripts/
+*.xcodeproj
+Package.swift
+Package.resolved
+.codeyam/
+.claude/
+docs/
+node_modules/
+test-results/

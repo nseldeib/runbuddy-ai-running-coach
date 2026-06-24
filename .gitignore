@@ -78,7 +78,6 @@ blob-report/
 .codeyam/state/last-advance.txt
 .codeyam/state/session-results-snapshot.json
 .codeyam/swift-tests.xml
-.codeyam/test-cache.json
 .codeyam/test-cache/
 .codeyam/test-run-marker.json
 
@@ -89,3 +88,4 @@ blob-report/
 node_modules/
 .vercel/
 package-lock.json
+.vercel
