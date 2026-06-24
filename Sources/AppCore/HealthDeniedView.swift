@@ -5,8 +5,22 @@ import SwiftUI
 // just can't show live activity until access is granted.
 struct HealthDeniedView: View {
     var onOpenSettings: () -> Void = {}
+    var onSettings: () -> Void = {}
 
     var body: some View {
+        ZStack(alignment: .topTrailing) {
+            deniedContent
+            Button(action: onSettings) {
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(Palette.subtle)
+                    .padding(18)
+            }
+            .accessibilityLabel("Settings")
+        }
+    }
+
+    private var deniedContent: some View {
         VStack(spacing: 22) {
             Spacer()
             PuffyBuddy(mood: .resting, size: 120).accessibilityHidden(true)

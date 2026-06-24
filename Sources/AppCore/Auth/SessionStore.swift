@@ -65,9 +65,24 @@ public final class SessionStore: ObservableObject {
         state = .guest
     }
 
-    /// Forget the local identity and guest choice (returns to the sign-in screen).
+    /// Sign out of Apple but keep using the app as a guest (no re-prompt).
     public func signOut() {
         tokens.delete(Self.account)
+        defaults.set(true, forKey: Self.guestKey)
+        state = .guest
+    }
+
+    /// Delete the local account: forget the Apple identity AND the guest choice,
+    /// returning to the welcome screen. This is the in-app account-deletion path
+    /// App Store guideline 5.1.1(v) requires for apps offering account sign-in.
+    public func deleteAccount() {
+        tokens.delete(Self.account)
+        defaults.set(false, forKey: Self.guestKey)
+        state = .undecided
+    }
+
+    /// Return to the sign-in screen to upgrade a guest into a signed-in account.
+    public func presentSignIn() {
         defaults.set(false, forKey: Self.guestKey)
         state = .undecided
     }

@@ -246,4 +246,10 @@ public final class OtterpaceModel: ObservableObject {
         guard healthAuth == .authorized else { return }
         today = await source.loadToday()
     }
+
+    /// Set the daily step goal: persist it and apply immediately to the dashboard.
+    public func setGoalSteps(_ goal: Int) {
+        UserPreferences.setGoalSteps(goal)
+        today.goalSteps = goal
+    }
 }

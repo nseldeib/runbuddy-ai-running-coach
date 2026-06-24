@@ -1,0 +1,26 @@
+{
+  "name": "Settings",
+  "id": "c24da56a-a8a2-415e-9ee0-c4579957f996",
+  "url": "/",
+  "dimensions": [
+    "iPhone 16"
+  ],
+  "mocks": {},
+  "deviceState": {
+    "preferences": {
+      "rbContentSize": "",
+      "rbShowSettings": true,
+      "rbStartScreen": "",
+      "rbDate": "2026-06-22",
+      "rbShowWeeklyReview": false,
+      "rbStartTab": "today",
+      "rbSteps": 8000,
+      "rbShowHistory": false,
+      "rbGoalSteps": 10000,
+      "rbPreviewMode": "",
+      "rbConnected": true
+    }
+  },
+  "scenarioType": "application",
+  "pageFilePath": "Sources/AppCore/SettingsView.swift"
+}

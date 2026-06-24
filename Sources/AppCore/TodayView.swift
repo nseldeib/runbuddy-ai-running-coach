@@ -8,6 +8,7 @@ import SwiftUI
 public struct TodayDashboard: View {
     @ObservedObject var model: OtterpaceModel
     var onAskCoach: () -> Void
+    var onSettings: () -> Void
 
     // Activity History presents as a full-cover overlay (cross-platform; a
     // SwiftUI `fullScreenCover` is unavailable on macOS). Initialized from the
@@ -15,9 +16,10 @@ public struct TodayDashboard: View {
     // frame, never mid-transition — same pattern as the Weekly Review overlay.
     @State private var showHistory: Bool
 
-    public init(model: OtterpaceModel, onAskCoach: @escaping () -> Void = {}) {
+    public init(model: OtterpaceModel, onAskCoach: @escaping () -> Void = {}, onSettings: @escaping () -> Void = {}) {
         self.model = model
         self.onAskCoach = onAskCoach
+        self.onSettings = onSettings
         _showHistory = State(initialValue: UserDefaults.standard.bool(forKey: "rbShowHistory"))
     }
 
@@ -25,7 +27,7 @@ public struct TodayDashboard: View {
         ZStack {
             ScrollView {
                 VStack(spacing: 18) {
-                    TodayHeader(date: model.today.date)
+                    TodayHeader(date: model.today.date, onSettings: onSettings)
                     BuddySummaryCard(model: model)
                     StatsRow(today: model.today)
                     if let coach = model.today.coach {

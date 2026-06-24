@@ -4,6 +4,7 @@ import SwiftUI
 // wordmark.
 struct TodayHeader: View {
     let date: String
+    var onSettings: () -> Void = {}
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
@@ -19,6 +20,13 @@ struct TodayHeader: View {
             Text("Otterpace")
                 .font(Typography.headline)
                 .foregroundColor(Palette.brand)
+            Button(action: onSettings) {
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(Palette.subtle)
+            }
+            .padding(.leading, 10)
+            .accessibilityLabel("Settings")
         }
     }
 }

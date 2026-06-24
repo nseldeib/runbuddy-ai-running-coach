@@ -1,54 +1,10 @@
 {
   "files": {
-    "Tests/AppCoreTests/CoachEngineTests.swift": {
-      "imports": [],
-      "importedBy": []
-    },
-    "Tests/AppCoreTests/FormattersTests.swift": {
-      "imports": [],
-      "importedBy": []
-    },
-    "Tests/AppCoreTests/WeeklyReviewEngineTests.swift": {
-      "imports": [],
-      "importedBy": []
-    },
-    "Tests/AppCoreTests/ActivityHistoryTests.swift": {
-      "imports": [],
-      "importedBy": []
-    },
     ".claude/hooks/editor-step-hook.py": {
       "imports": [],
       "importedBy": []
     },
-    "ui/src/helpers/stepLabels.generated.ts": {
-      "imports": [],
-      "importedBy": []
-    },
-    ".claude/skills/review-session/scripts/find-last-session-helpers.mjs": {
-      "imports": [],
-      "importedBy": [
-        ".claude/skills/review-session/scripts/find-last-session.mjs"
-      ]
-    },
     ".claude/hooks/_step_metadata.py": {
-      "imports": [],
-      "importedBy": []
-    },
-    "Tests/AppCoreTests/ModelTests.swift": {
-      "imports": [],
-      "importedBy": []
-    },
-    ".claude/hooks/editor-pretool-hook.py": {
-      "imports": [],
-      "importedBy": []
-    },
-    ".claude/skills/review-session/scripts/extract-session-helpers.mjs": {
-      "imports": [],
-      "importedBy": [
-        ".claude/skills/review-session/scripts/extract-session.mjs"
-      ]
-    },
-    "Tests/AppCoreTests/MainTabTests.swift": {
       "imports": [],
       "importedBy": []
     },
@@ -62,6 +18,50 @@
       "imports": [
         ".claude/skills/review-session/scripts/find-last-session-helpers.mjs"
       ],
+      "importedBy": []
+    },
+    ".claude/skills/review-session/scripts/find-last-session-helpers.mjs": {
+      "imports": [],
+      "importedBy": [
+        ".claude/skills/review-session/scripts/find-last-session.mjs"
+      ]
+    },
+    ".claude/skills/review-session/scripts/extract-session-helpers.mjs": {
+      "imports": [],
+      "importedBy": [
+        ".claude/skills/review-session/scripts/extract-session.mjs"
+      ]
+    },
+    "Tests/AppCoreTests/WeeklyReviewEngineTests.swift": {
+      "imports": [],
+      "importedBy": []
+    },
+    ".claude/hooks/editor-pretool-hook.py": {
+      "imports": [],
+      "importedBy": []
+    },
+    "Tests/AppCoreTests/MainTabTests.swift": {
+      "imports": [],
+      "importedBy": []
+    },
+    "ui/src/helpers/stepLabels.generated.ts": {
+      "imports": [],
+      "importedBy": []
+    },
+    "Tests/AppCoreTests/ActivityHistoryTests.swift": {
+      "imports": [],
+      "importedBy": []
+    },
+    "Tests/AppCoreTests/ModelTests.swift": {
+      "imports": [],
+      "importedBy": []
+    },
+    "Tests/AppCoreTests/CoachEngineTests.swift": {
+      "imports": [],
+      "importedBy": []
+    },
+    "Tests/AppCoreTests/FormattersTests.swift": {
+      "imports": [],
       "importedBy": []
     }
   },
@@ -84,5 +84,5 @@
       "importedBy": []
     }
   },
-  "lastUpdated": "2026-06-24T17:28:54Z"
+  "lastUpdated": "2026-06-24T17:54:48Z"
 }

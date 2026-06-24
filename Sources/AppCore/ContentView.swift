@@ -15,6 +15,7 @@ public struct ContentView: View {
     // Which tab is selected at launch. Scenarios seed `rbStartTab="coach"` to land
     // directly on the Ask Coach chat; default (and production) opens on Today.
     @State private var tab: MainTab
+    @State private var showSettings: Bool
 
     // Scenario-only override: a scenario can seed `rbContentSize` (e.g. "xxxl",
     // "accessibility3") to force a Dynamic Type size for the whole app, so the
@@ -25,6 +26,8 @@ public struct ContentView: View {
     public init() {
         let seeded = UserDefaults.standard.string(forKey: "rbStartTab") ?? ""
         _tab = State(initialValue: MainTab(raw: seeded))
+        // Scenario hook: seed `rbShowSettings` to open Settings on the first frame.
+        _showSettings = State(initialValue: UserDefaults.standard.bool(forKey: "rbShowSettings"))
     }
 
     /// Open the system Settings app so the user can grant Health access.
@@ -51,9 +54,17 @@ public struct ContentView: View {
             } else if model.today.healthKitConnected {
                 connectedTabs
             } else if model.healthAuth == .denied {
-                HealthDeniedView(onOpenSettings: openSettings)
+                HealthDeniedView(onOpenSettings: openSettings, onSettings: { showSettings = true })
             } else {
-                ConnectHero(onConnect: { model.connect() })
+                ConnectHero(onConnect: { model.connect() }, onSettings: { showSettings = true })
+            }
+
+            // Settings presents as a full-cover overlay, reachable from the
+            // dashboard and the Connect hero (so sign out / delete account is
+            // always findable). Skipped on the Buddy preview host + sign-in screen.
+            if showSettings && previewMode.isEmpty && session.state != .undecided {
+                SettingsView(model: model, session: session, onClose: { showSettings = false })
+                    .zIndex(2)
             }
         }
         .modifier(DynamicTypeOverride(raw: contentSizeOverride))
@@ -63,7 +74,7 @@ public struct ContentView: View {
     // jumps here by flipping `tab` to `.coach`.
     private var connectedTabs: some View {
         TabView(selection: $tab) {
-            TodayDashboard(model: model, onAskCoach: { tab = .coach })
+            TodayDashboard(model: model, onAskCoach: { tab = .coach }, onSettings: { showSettings = true })
                 .tag(MainTab.today)
                 .tabItem { Label("Today", systemImage: "sun.max.fill") }
 

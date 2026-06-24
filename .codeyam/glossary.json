@@ -299,6 +299,15 @@
     "testFile": "Tests/AppCoreTests/SessionStoreTests.swift"
   },
   {
+    "description": "The Settings overlay (reached via the gear on the dashboard and Connect hero): Account (sign out / delete account — the App Store-required deletion path), Apple Health status, editable daily step goal, a privacy explainer + policy link, and About/version.",
+    "filePath": "Sources/AppCore/SettingsView.swift",
+    "name": "SettingsView",
+    "untestabilityReason": {
+      "justification": "Native SwiftUI view; no component-isolation harness on this stack, shown via the settings application scenario.",
+      "kind": "no-isolation-harness"
+    }
+  },
+  {
     "description": "The optional welcome/sign-in screen: Buddy, a Sign in with Apple button, and an equal-weight 'Continue without an account'. Shown in production when undecided; previewable via the sign-in-welcome scenario.",
     "filePath": "Sources/AppCore/Auth/SignInView.swift",
     "name": "SignInView",
@@ -369,6 +378,12 @@
       "justification": "A set of static Font constants (design tokens); no branching logic to test, exercised visually via scenarios.",
       "kind": "type-only"
     }
+  },
+  {
+    "description": "Locally-persisted user preferences (no account): the daily step goal with a default and preset options, read by the production HealthKit path and edited in Settings.",
+    "filePath": "Sources/AppCore/Preferences.swift",
+    "name": "UserPreferences",
+    "testFile": "Tests/AppCoreTests/ModelTests.swift"
   },
   {
     "description": "The week's training-load snapshot: mileage, run days, longest run, and rest days, with a trend badge.",

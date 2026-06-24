@@ -17,9 +17,12 @@ import HealthKit
 
 public final class HealthKitDataSource: HealthDataSource {
     private let store = HKHealthStore()
-    private let goalSteps: Int
 
-    public init(goalSteps: Int = 10000) { self.goalSteps = goalSteps }
+    public init() {}
+
+    // The daily goal is read live from the user's persisted preference each load,
+    // so changing it in Settings reflects immediately.
+    private var goalSteps: Int { UserPreferences.goalSteps() }
 
     private var readTypes: Set<HKObjectType> {
         var types: Set<HKObjectType> = [HKObjectType.workoutType()]

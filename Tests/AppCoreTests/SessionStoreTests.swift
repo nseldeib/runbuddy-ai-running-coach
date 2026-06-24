@@ -59,12 +59,26 @@ final class SessionStoreTests: XCTestCase {
         XCTAssertEqual(next.state, .guest)
     }
 
-    // Signing out clears the identity and returns to the sign-in screen.
-    func testSignOutClears() {
+    // Signing out forgets the Apple identity but keeps the app usable as a guest.
+    func testSignOutBecomesGuest() {
         let t = MemoryTokens(); t.store["otterpace.appleUserID"] = "x"
         let s = SessionStore(tokens: t, defaults: defaults(), seeded: false, wantsSignInPreview: false)
         s.signOut()
+        XCTAssertEqual(s.state, .guest)
+        XCTAssertNil(t.store["otterpace.appleUserID"])
+    }
+
+    // Deleting the account forgets the identity AND the guest choice, returning
+    // to the welcome screen (the App Store account-deletion path).
+    func testDeleteAccountResets() {
+        let d = defaults()
+        let t = MemoryTokens(); t.store["otterpace.appleUserID"] = "x"
+        let s = SessionStore(tokens: t, defaults: d, seeded: false, wantsSignInPreview: false)
+        s.deleteAccount()
         XCTAssertEqual(s.state, .undecided)
         XCTAssertNil(t.store["otterpace.appleUserID"])
+        // A fresh launch with no token and no guest choice stays at the welcome screen.
+        let next = SessionStore(tokens: MemoryTokens(), defaults: d, seeded: false, wantsSignInPreview: false)
+        XCTAssertEqual(next.state, .undecided)
     }
 }

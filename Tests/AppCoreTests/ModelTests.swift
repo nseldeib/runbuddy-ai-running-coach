@@ -103,4 +103,20 @@ final class ModelTests: XCTestCase {
         let connected = await MainActor.run { model.today.healthKitConnected }
         XCTAssertTrue(connected)
     }
+
+    // Setting the daily step goal applies it to the dashboard immediately.
+    @MainActor func testSetGoalStepsApplies() {
+        let model = OtterpaceModel(today: TodayState(healthKitConnected: true, steps: 5000, goalSteps: 10000))
+        model.setGoalSteps(12000)
+        XCTAssertEqual(model.today.goalSteps, 12000)
+        XCTAssertEqual(UserPreferences.goalSteps(), 12000)
+    }
+
+    // UserPreferences falls back to the default goal when nothing is set.
+    func testGoalDefaults() {
+        let d = UserDefaults(suiteName: "ModelTests.goal.\(UUID().uuidString)")!
+        XCTAssertEqual(UserPreferences.goalSteps(d), UserPreferences.defaultGoal)
+        UserPreferences.setGoalSteps(8000, d)
+        XCTAssertEqual(UserPreferences.goalSteps(d), 8000)
+    }
 }

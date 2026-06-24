@@ -4,8 +4,22 @@ import SwiftUI
 // a warm explainer, the connect call-to-action, and a privacy reassurance.
 struct ConnectHero: View {
     let onConnect: () -> Void
+    var onSettings: () -> Void = {}
 
     var body: some View {
+        ZStack(alignment: .topTrailing) {
+            heroContent
+            Button(action: onSettings) {
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(Palette.subtle)
+                    .padding(18)
+            }
+            .accessibilityLabel("Settings")
+        }
+    }
+
+    private var heroContent: some View {
         VStack(spacing: 24) {
             Spacer()
             PuffyBuddy(mood: .ready, size: 140)
