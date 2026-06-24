@@ -1,0 +1,32 @@
+{
+  "name": "Settings — Reminders On",
+  "id": "baf020d8-2693-4a84-94c5-c65e7638bd4f",
+  "url": "/",
+  "dimensions": [
+    "iPhone 16"
+  ],
+  "mocks": {},
+  "deviceState": {
+    "preferences": {
+      "otterpaceRemindInactivity": true,
+      "otterpaceRemindGoal": true,
+      "rbGoalSteps": 10000,
+      "rbPreviewMode": "",
+      "rbShowSettings": true,
+      "rbStartScreen": "",
+      "rbDate": "2026-06-22",
+      "otterpaceRemindDaily": true,
+      "otterpaceRemindInactivityHours": 3,
+      "rbConnected": true,
+      "rbShowHistory": false,
+      "otterpaceRemindDailyMinute": 0,
+      "rbShowWeeklyReview": false,
+      "rbStartTab": "today",
+      "rbSteps": 8000,
+      "rbContentSize": "",
+      "otterpaceRemindDailyHour": 18
+    }
+  },
+  "scenarioType": "application",
+  "pageFilePath": "Sources/AppCore/SettingsView.swift"
+}

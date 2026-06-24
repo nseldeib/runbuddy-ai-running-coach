@@ -18,6 +18,11 @@ public struct SettingsView: View {
     @State private var coachConnected = false
     @State private var coachKeyDraft = ""
 
+    // Local movement reminders.
+    private let reminderScheduler: MovementReminderScheduling = MovementReminderScheduler()
+    @State private var reminders = ReminderSettings()
+    @State private var notifAuthorized = false
+
     public init(model: OtterpaceModel, session: SessionStore, onClose: @escaping () -> Void = {}) {
         self.model = model
         self.session = session
@@ -38,6 +43,7 @@ public struct SettingsView: View {
                         accountCard
                         healthCard
                         coachCard
+                        remindersCard
                         goalCard
                         privacyCard
                         aboutCard
@@ -48,7 +54,11 @@ public struct SettingsView: View {
                 }
             }
         }
-        .onAppear { coachConnected = coachKeys.isConnected }
+        .onAppear {
+            coachConnected = coachKeys.isConnected
+            reminders = ReminderSettings.load()
+            Task { notifAuthorized = await reminderScheduler.isAuthorized() }
+        }
         .alert("Delete account?", isPresented: $confirmDelete) {
             Button("Delete", role: .destructive) { session.deleteAccount() }
             Button("Cancel", role: .cancel) {}
@@ -147,6 +157,83 @@ public struct SettingsView: View {
                     }
                 }
             }
+        }
+    }
+
+    // MARK: Movement reminders
+
+    @ViewBuilder private var remindersCard: some View {
+        card("Reminders") {
+            VStack(alignment: .leading, spacing: 12) {
+                reminderToggle("Daily reminder", isOn: reminders.dailyEnabled) { on in
+                    reminders.dailyEnabled = on; commitReminders(enabling: on)
+                }
+                if reminders.dailyEnabled {
+                    DatePicker("Time", selection: dailyTimeBinding, displayedComponents: .hourAndMinute)
+                        .font(Typography.callout)
+                }
+                Divider().opacity(0.3)
+                reminderToggle("Evening goal nudge", isOn: reminders.goalEnabled) { on in
+                    reminders.goalEnabled = on; commitReminders(enabling: on)
+                }
+                Divider().opacity(0.3)
+                reminderToggle("Inactivity nudge", isOn: reminders.inactivityEnabled) { on in
+                    reminders.inactivityEnabled = on; commitReminders(enabling: on)
+                }
+                if reminders.inactivityEnabled {
+                    Picker("After", selection: inactivityHoursBinding) {
+                        ForEach(ReminderSettings.inactivityOptions, id: \.self) { Text("\($0)h").tag($0) }
+                    }
+                    .pickerStyle(.segmented)
+                }
+                if reminders.anyEnabled && !notifAuthorized {
+                    Text("Allow notifications in iOS Settings to receive these.")
+                        .font(Typography.caption).foregroundColor(Palette.amber)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+    }
+
+    private func reminderToggle(_ title: String, isOn: Bool, _ change: @escaping (Bool) -> Void) -> some View {
+        Toggle(isOn: Binding(get: { isOn }, set: change)) {
+            Text(title).font(Typography.body).foregroundColor(Palette.ink)
+        }
+        .tint(Palette.brand)
+    }
+
+    private var dailyTimeBinding: Binding<Date> {
+        Binding(
+            get: {
+                var c = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+                c.hour = reminders.dailyHour; c.minute = reminders.dailyMinute
+                return Calendar.current.date(from: c) ?? Date()
+            },
+            set: { newDate in
+                let c = Calendar.current.dateComponents([.hour, .minute], from: newDate)
+                reminders.dailyHour = c.hour ?? ReminderSettings.defaultDailyHour
+                reminders.dailyMinute = c.minute ?? 0
+                commitReminders(enabling: false)
+            }
+        )
+    }
+
+    private var inactivityHoursBinding: Binding<Int> {
+        Binding(get: { reminders.inactivityHours },
+                set: { reminders.inactivityHours = $0; commitReminders(enabling: false) })
+    }
+
+    /// Persist the reminder prefs and (re)apply them. When the user is turning a
+    /// reminder ON and we don't yet have permission, ask for it first.
+    private func commitReminders(enabling: Bool) {
+        reminders.save()
+        if enabling && !notifAuthorized {
+            Task { @MainActor in
+                notifAuthorized = await reminderScheduler.requestAuthorization()
+                reminderScheduler.applyForeground(reminders)
+            }
+        } else {
+            reminderScheduler.applyForeground(reminders)
         }
     }
 

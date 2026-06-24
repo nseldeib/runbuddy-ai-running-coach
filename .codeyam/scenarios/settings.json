@@ -8,17 +8,20 @@
   "mocks": {},
   "deviceState": {
     "preferences": {
-      "rbContentSize": "",
-      "rbSteps": 8000,
-      "rbShowWeeklyReview": false,
-      "rbConnected": true,
       "rbPreviewMode": "",
-      "rbDate": "2026-06-22",
-      "rbShowSettings": true,
-      "rbShowHistory": false,
-      "rbGoalSteps": 10000,
+      "otterpaceRemindInactivity": false,
+      "rbShowWeeklyReview": false,
+      "rbStartScreen": "",
       "rbStartTab": "today",
-      "rbStartScreen": ""
+      "rbSteps": 8000,
+      "rbDate": "2026-06-22",
+      "rbGoalSteps": 10000,
+      "rbContentSize": "",
+      "otterpaceRemindDaily": false,
+      "otterpaceRemindGoal": false,
+      "rbConnected": true,
+      "rbShowHistory": false,
+      "rbShowSettings": true
     }
   },
   "scenarioType": "application",

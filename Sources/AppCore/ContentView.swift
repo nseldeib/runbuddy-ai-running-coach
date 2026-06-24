@@ -8,6 +8,12 @@ public struct ContentView: View {
     @StateObject private var model = OtterpaceModel()
     @StateObject private var session = SessionStore()
 
+    // Local movement reminders. Re-applied on scene-phase changes: foreground
+    // (re)schedules the daily/goal reminders and clears the inactivity timer;
+    // background arms it. No-ops unless the user enabled a reminder in Settings.
+    @Environment(\.scenePhase) private var scenePhase
+    private let reminderScheduler: MovementReminderScheduling = MovementReminderScheduler()
+
     // Scenario-only override: when a preview scenario seeds `rbPreviewMode`, the
     // app renders the Buddy style/loader showcase instead of the normal flow.
     private let previewMode = UserDefaults.standard.string(forKey: "rbPreviewMode") ?? ""
@@ -68,6 +74,16 @@ public struct ContentView: View {
             }
         }
         .modifier(DynamicTypeOverride(raw: contentSizeOverride))
+        .onChange(of: scenePhase) { phase in
+            // Never schedule during a preview/scenario capture.
+            guard previewMode.isEmpty else { return }
+            let settings = ReminderSettings.load()
+            switch phase {
+            case .active:     reminderScheduler.applyForeground(settings)
+            case .background: reminderScheduler.applyBackground(settings)
+            default:          break
+            }
+        }
     }
 
     // Today + Ask Coach behind a bottom tab bar. The Coach card on Today also
