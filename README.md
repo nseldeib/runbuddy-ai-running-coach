@@ -80,6 +80,36 @@ populated from HealthKit (or imported Strava activity) in the real app and from
 each CodeYam scenario's `deviceState` preferences in the simulator preview.
 Production starts empty; each scenario carries its own seeded state.
 
+## Built with CodeYam
+
+Otterpace is a worked example of building a native iOS app with the **CodeYam
+editor** — a scenario-driven loop where every feature is developed against
+seeded, captured states that render in a live simulator preview.
+
+The core idea: a single `TodayState` (`Sources/AppCore/Model.swift`) drives the
+UI, and each **scenario** (`.codeyam/scenarios/*.json`) seeds that state at launch
+through a `deviceState.preferences` map (the `rb*` / `otterpace*` UserDefaults
+keys) injected into the simulator. "Goal Crushed", "Recovery Caution", and
+"Day One — Connect" are the *same* screens rendered from different seeds, each
+captured as a screenshot the editor verifies.
+
+Two patterns keep that loop reliable:
+
+- **Mock seams keep previews deterministic while production stays real.** Each
+  integration sits behind a protocol with a seeded mock *and* a real
+  implementation — `HealthDataSource` (seeded vs. `HealthKitDataSource`),
+  `CoachEngine` (deterministic mock) vs. `RemoteCoach` (real Claude),
+  `MovementReminderScheduler` (no-op vs. `UNUserNotificationCenter`). Scenarios
+  always use the mock, so captures never touch the network or device permissions;
+  production uses the real source.
+- **Scenarios are bleed-proofed.** Because seeds are shared simulator state, each
+  scenario explicitly sets the "off" value for flags it doesn't use
+  (e.g. `rbShowSettings: false`) so a prior capture can't bleed into the next.
+
+Tests are plain **XCTest** over the pure logic (coach intent classification,
+weekly-review generation, activity-history grouping, formatters), captured by the
+editor's runner. Full walkthrough: **[docs/built-with-codeyam.md](docs/built-with-codeyam.md)**.
+
 ## Architecture
 
 - `App/` — the iOS app entry point (`@main`) and `Info.plist`
