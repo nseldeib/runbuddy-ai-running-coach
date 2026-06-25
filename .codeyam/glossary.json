@@ -464,10 +464,34 @@
     }
   },
   {
+    "description": "Deletes a device's Strava token row from Supabase, tolerating a 404 and throwing on other errors.",
+    "filePath": "api/_lib/strava.ts",
+    "name": "deleteToken",
+    "testFile": "test/api/strava.test.ts"
+  },
+  {
     "description": "Pure, case-insensitive mapping from a scenario-seeded rbContentSize string (e.g. xxxl, accessibility3) to a SwiftUI DynamicTypeSize; empty/unrecognized returns nil to honor the system size. Drives the app-wide Dynamic Type override for accessibility text-size scenarios.",
     "filePath": "Sources/AppCore/ContentView.swift",
     "name": "dynamicTypeSize",
     "testFile": "Tests/AppCoreTests/DynamicTypeOverrideTests.swift"
+  },
+  {
+    "description": "Reads a required environment variable, throwing a typed missing_env error when it is unset.",
+    "filePath": "api/_lib/strava.ts",
+    "name": "env",
+    "testFile": "test/api/strava.test.ts"
+  },
+  {
+    "description": "Exchanges a Strava OAuth authorization code for tokens using the client secret, throwing on failure.",
+    "filePath": "api/_lib/strava.ts",
+    "name": "exchangeCode",
+    "testFile": "test/api/strava.test.ts"
+  },
+  {
+    "description": "Fetches recent Strava activities and maps them to the app's MappedWorkout shape, filtering out any that fail date validation.",
+    "filePath": "api/_lib/strava.ts",
+    "name": "fetchMappedActivities",
+    "testFile": "test/api/strava.test.ts"
   },
   {
     "description": "Formats a whole number with locale thousands separators for readable step counts, e.g. 11240 becomes 11,240.",
@@ -476,16 +500,76 @@
     "testFile": "Tests/AppCoreTests/FormattersTests.swift"
   },
   {
+    "description": "Returns a valid Strava access token for a device, refreshing against Strava and persisting the new token when the current one is near expiry.",
+    "filePath": "api/_lib/strava.ts",
+    "name": "freshAccessToken",
+    "testFile": "test/api/strava.test.ts"
+  },
+  {
+    "description": "Reads a device's stored Strava token row from Supabase, returning null when none exists and throwing on a failed read.",
+    "filePath": "api/_lib/strava.ts",
+    "name": "getToken",
+    "testFile": "test/api/strava.test.ts"
+  },
+  {
+    "description": "Vercel serverless endpoint for the AI coach: validates the BYO Anthropic key and question, calls Claude with the injury-aware system prompt and structured output, and returns a CoachReply, degrading gracefully on refusal or malformed output and mapping 401/429 upstream errors.",
+    "filePath": "api/coach.ts",
+    "name": "handler",
+    "testFile": "test/api/coach.test.ts"
+  },
+  {
+    "description": "GET endpoint that reads a device's Strava token, refreshes it when expired, and returns recent activities mapped to the app's workout shape (not-connected with an empty list when no token).",
+    "filePath": "api/strava/activities.ts",
+    "name": "handler",
+    "testFile": "test/api/strava-handlers.test.ts"
+  },
+  {
+    "description": "OAuth redirect endpoint that bounces the browser back into the otterpace:// app scheme with the code (or error) plus state so ASWebAuthenticationSession can capture it.",
+    "filePath": "api/strava/callback.ts",
+    "name": "handler",
+    "testFile": "test/api/strava-handlers.test.ts"
+  },
+  {
+    "description": "POST endpoint that forgets a device's Strava tokens via a server-side Supabase delete.",
+    "filePath": "api/strava/disconnect.ts",
+    "name": "handler",
+    "testFile": "test/api/strava-handlers.test.ts"
+  },
+  {
+    "description": "POST endpoint that exchanges a Strava OAuth code for tokens and stores them in Supabase, returning only a success flag and the athlete first name.",
+    "filePath": "api/strava/exchange.ts",
+    "name": "handler",
+    "testFile": "test/api/strava-handlers.test.ts"
+  },
+  {
+    "description": "Maps a single Strava activity to a MappedWorkout, returning null when the date is missing or malformed; computes miles and pace.",
+    "filePath": "api/_lib/strava.ts",
+    "name": "mapActivity",
+    "testFile": "test/api/strava.test.ts"
+  },
+  {
     "description": "Renders minutes-since-last-movement as a compact label: now at or below zero, bare minutes under an hour, and hours-plus-minutes above, dropping the minutes part when it is zero.",
     "filePath": "Sources/AppCore/Formatters.swift",
     "name": "movementLabel",
     "testFile": "Tests/AppCoreTests/FormattersTests.swift"
   },
   {
+    "description": "Formats a speed in meters per second as a mm:ss/mi pace string with zero-padded seconds.",
+    "filePath": "api/_lib/strava.ts",
+    "name": "pacePerMile",
+    "testFile": "test/api/strava.test.ts"
+  },
+  {
     "description": "Converts an ISO yyyy-MM-dd date into a short weekday-and-day label such as Mon, Jun 22, returning the input unchanged when it is not a valid ISO date.",
     "filePath": "Sources/AppCore/Formatters.swift",
     "name": "prettyDate",
     "testFile": "Tests/AppCoreTests/FormattersTests.swift"
+  },
+  {
+    "description": "Rounds a number to one decimal place.",
+    "filePath": "api/_lib/strava.ts",
+    "name": "round1",
+    "testFile": "test/api/strava.test.ts"
   },
   {
     "description": "Builds the VoiceOver spoken summary for the step-goal ring, mirroring the three caption states with whole-number step, goal, and remaining counts; never shame-based.",
@@ -498,5 +582,23 @@
     "filePath": "Sources/AppCore/Formatters.swift",
     "name": "stepGoalCaption",
     "testFile": "Tests/AppCoreTests/FormattersTests.swift"
+  },
+  {
+    "description": "Builds the apikey + bearer Authorization headers for Supabase PostgREST from the service-role key.",
+    "filePath": "api/_lib/strava.ts",
+    "name": "supabaseHeaders",
+    "testFile": "test/api/strava.test.ts"
+  },
+  {
+    "description": "Builds the Supabase PostgREST URL for the strava_tokens table from SUPABASE_URL.",
+    "filePath": "api/_lib/strava.ts",
+    "name": "tokensEndpoint",
+    "testFile": "test/api/strava.test.ts"
+  },
+  {
+    "description": "Upserts a device's Strava token row into Supabase using merge-duplicates, throwing on a non-OK response.",
+    "filePath": "api/_lib/strava.ts",
+    "name": "upsertToken",
+    "testFile": "test/api/strava.test.ts"
   }
 ]

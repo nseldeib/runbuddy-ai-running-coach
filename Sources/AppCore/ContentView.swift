@@ -74,6 +74,10 @@ public struct ContentView: View {
             }
         }
         .modifier(DynamicTypeOverride(raw: contentSizeOverride))
+        // Light-only design: also pin the scheme here so SwiftUI previews and
+        // isolated-component captures (which mount ContentView directly, not via
+        // the App scene) render light too. The App scene sets this as well.
+        .preferredColorScheme(.light)
         .onAppear { if previewMode.isEmpty { Analytics.shared.capture("app_opened") } }
         .onChange(of: scenePhase) { phase in
             // Never schedule during a preview/scenario capture.

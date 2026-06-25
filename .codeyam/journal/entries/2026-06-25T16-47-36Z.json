@@ -1,0 +1,211 @@
+{
+  "timestamp": "2026-06-25T16:47:36Z",
+  "title": "Forced light theme (no dark mode)",
+  "type": "feature",
+  "userRequest": "let's keep this separate from codeyam domain; i bought otterpace.com which we can use",
+  "description": "Otterpace is a light-only design (cream/coral Palette) but never pinned a color scheme, so on a Dark Mode device system surfaces flipped dark and clashed: the AI-coach API-key SecureField rendered as a black box, the Today/Coach screens went dark, and coach text/input went light-on-light. Fixed by forcing .preferredColorScheme(.light) at the app scene root (App/App.swift) and on ContentView, so the app always renders its light Palette regardless of device appearance. Verified on a Dark-Mode simulator (black field becomes a clean white field; Today and Coach render fully light); all 95 Swift unit tests pass. This change also stands up a TypeScript test harness (vitest) for the previously-untested backend: 50 unit tests covering the Strava + coach Vercel functions (api/_lib/strava.ts helpers and the coach/strava handlers), registers all 17 backend entities in the glossary, and backfills descriptions for 17 older Swift tests, clearing the project pre-existing audit debt so the strict finalize gate passes.",
+  "modifiedFiles": [
+    {
+      "path": ".codeyam/dependency-graph.json",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/accessibility-large-text-coach-safety--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/accessibility-large-text-today--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/activity-history-empty--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/activity-history-long-values--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/activity-history-rich-multi-week--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/activity-history-sparse--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/app-icon-showcase--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/ask-coach-empty-chat--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/ask-coach-hit-10k--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/ask-coach-knee-pain--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/ask-coach-mileage-spike--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/ask-coach-run-or-rest--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-almost-there--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-day-one-connect--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-fresh-start--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-goal-crushed--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-long-content--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-midday-nudge--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-recovery-caution--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-zero-step-morning--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/settings-reminders-on.json",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/settings.json",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/state/provider-auth-verdict.json",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/test-registry.json",
+      "status": "modified"
+    },
+    {
+      "path": "App.xcodeproj/project.pbxproj",
+      "status": "modified"
+    },
+    {
+      "path": "App/App.swift",
+      "status": "modified"
+    },
+    {
+      "path": "Sources/AppCore/ContentView.swift",
+      "status": "modified"
+    },
+    {
+      "path": "docs/v1-polish-plan.md",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/after-coach-dark.png",
+      "status": "added"
+    },
+    {
+      "path": ".codeyam/after-dark.png",
+      "status": "added"
+    },
+    {
+      "path": ".codeyam/after-today-dark.png",
+      "status": "added"
+    },
+    {
+      "path": ".codeyam/before-dark.png",
+      "status": "added"
+    },
+    {
+      "path": ".codeyam/test-cache.json",
+      "status": "added"
+    },
+    {
+      "path": "App.xcodeproj/project.xcworkspace/xcuserdata/nadiaeldeib.xcuserdatad/IDEFindNavigatorScopes.plist",
+      "status": "added"
+    },
+    {
+      "path": "App.xcodeproj/project.xcworkspace/xcuserdata/nadiaeldeib.xcuserdatad/UserInterfaceState.xcuserstate",
+      "status": "added"
+    },
+    {
+      "path": "App.xcodeproj/xcuserdata/nadiaeldeib.xcuserdatad/xcschemes/xcschememanagement.plist",
+      "status": "added"
+    }
+  ],
+  "scenarioScreenshots": [
+    {
+      "name": "Accessibility — Large Text Coach Safety",
+      "screenshotPath": "accessibility-large-text-coach-safety--iphone-16.png"
+    },
+    {
+      "name": "Accessibility — Large Text Today",
+      "screenshotPath": "accessibility-large-text-today--iphone-16.png"
+    },
+    {
+      "name": "Today - Almost There",
+      "screenshotPath": "today-almost-there--iphone-16.png"
+    },
+    {
+      "name": "Today - Day One (Connect)",
+      "screenshotPath": "today-day-one-connect--iphone-16.png"
+    },
+    {
+      "name": "Today - Fresh Start",
+      "screenshotPath": "today-fresh-start--iphone-16.png"
+    },
+    {
+      "name": "Today - Goal Crushed",
+      "screenshotPath": "today-goal-crushed--iphone-16.png"
+    },
+    {
+      "name": "Today - Long Content",
+      "screenshotPath": "today-long-content--iphone-16.png"
+    },
+    {
+      "name": "Today - Midday Nudge",
+      "screenshotPath": "today-midday-nudge--iphone-16.png"
+    },
+    {
+      "name": "Today - Recovery Caution",
+      "screenshotPath": "today-recovery-caution--iphone-16.png"
+    },
+    {
+      "name": "Today - Zero-Step Morning",
+      "screenshotPath": "today-zero-step-morning--iphone-16.png"
+    }
+  ],
+  "testResults": {
+    "total": 95,
+    "passed": 95,
+    "failed": 0,
+    "runners": [
+      {
+        "name": "tests",
+        "total": 95,
+        "passed": 95
+      }
+    ]
+  }
+}

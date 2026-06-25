@@ -31,13 +31,13 @@ export interface TokenRow {
   expires_at: number; // unix seconds
 }
 
-function env(name: string): string {
+export function env(name: string): string {
   const v = process.env[name];
   if (!v) throw new Error(`missing_env:${name}`);
   return v;
 }
 
-function supabaseHeaders(): Record<string, string> {
+export function supabaseHeaders(): Record<string, string> {
   const key = env("SUPABASE_SERVICE_ROLE_KEY");
   return {
     apikey: key,
@@ -46,7 +46,7 @@ function supabaseHeaders(): Record<string, string> {
   };
 }
 
-function tokensEndpoint(): string {
+export function tokensEndpoint(): string {
   return `${env("SUPABASE_URL")}/rest/v1/strava_tokens`;
 }
 
@@ -156,7 +156,7 @@ export interface MappedWorkout {
 
 const METERS_PER_MILE = 1609.344;
 
-function mapActivity(a: StravaActivity): MappedWorkout | null {
+export function mapActivity(a: StravaActivity): MappedWorkout | null {
   // Skip anything without a usable date — an empty/garbage date breaks the app's
   // week-grouping and newest-first sorting downstream.
   const date = (a.start_date_local || "").slice(0, 10);
@@ -173,13 +173,13 @@ function mapActivity(a: StravaActivity): MappedWorkout | null {
   };
 }
 
-function pacePerMile(metersPerSecond: number): string {
+export function pacePerMile(metersPerSecond: number): string {
   const secPerMile = METERS_PER_MILE / metersPerSecond;
   const m = Math.floor(secPerMile / 60);
   const s = Math.round(secPerMile % 60);
   return `${m}:${String(s).padStart(2, "0")}/mi`;
 }
 
-function round1(n: number): number {
+export function round1(n: number): number {
   return Math.round(n * 10) / 10;
 }

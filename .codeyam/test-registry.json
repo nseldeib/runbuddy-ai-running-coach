@@ -262,6 +262,42 @@
       "runner": "tests"
     },
     {
+      "description": "clear removes the stored coach key.",
+      "file": "Tests/AppCoreTests/IntegrationModuleTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.CoachKeyStoreTests › testClear",
+      "line": 70,
+      "registeredAt": "2026-06-25T16:43:33.270266+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "With no key saved, the coach key store reports not-connected.",
+      "file": "Tests/AppCoreTests/IntegrationModuleTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.CoachKeyStoreTests › testEmptyIsNotConnected",
+      "line": 55,
+      "registeredAt": "2026-06-25T16:43:33.266529+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "Saving a key trims surrounding whitespace and reports connected.",
+      "file": "Tests/AppCoreTests/IntegrationModuleTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.CoachKeyStoreTests › testSaveTrimsAndConnects",
+      "line": 62,
+      "registeredAt": "2026-06-25T16:43:33.268622+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "A whitespace-only entry trims to empty, so it is treated as no key.",
+      "file": "Tests/AppCoreTests/IntegrationModuleTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.CoachKeyStoreTests › testWhitespaceSaveIsNotConnected",
+      "line": 79,
+      "registeredAt": "2026-06-25T16:43:33.272414+00:00",
+      "runner": "tests"
+    },
+    {
       "description": "Accessibility aliases map to the matching accessibility sizes.",
       "file": "Tests/AppCoreTests/DynamicTypeOverrideTests.swift",
       "format": "junit-xml",
@@ -433,6 +469,55 @@
       "runner": "tests"
     },
     {
+      "description": "connect() on a seeded source ends up authorized and loads the seeded steps.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.HealthDataSourceTests › testConnectWithSeededSourceAuthorizesAndLoads",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "A model built from a connected state reports authorized; an empty one does not.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.HealthDataSourceTests › testModelHealthAuthFromState",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "A launch with no rb* preferences is production, not a seeded scenario.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.HealthDataSourceTests › testNotSeededWhenNoRbKeys",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "A launch with any rb* preference is treated as a seeded CodeYam scenario.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.HealthDataSourceTests › testScenarioSeededWhenRbKeyPresent",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "The seeded health source reports authorized only once rbConnected is set.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.HealthDataSourceTests › testSeededAuthorizationReflectsConnected",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "The seeded health source loads the seeded snapshot and marks it connected.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.HealthDataSourceTests › testSeededLoadTodayReturnsSeededState",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "Requesting authorization on the seeded health source grants and marks connected.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.HealthDataSourceTests › testSeededRequestAuthorizationGrants",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
       "description": "A known raw string maps to the matching tab, case-insensitively",
       "file": "Tests/AppCoreTests/MainTabTests.swift",
       "format": "junit-xml",
@@ -455,7 +540,7 @@
       "file": "Tests/AppCoreTests/ModelTests.swift",
       "format": "junit-xml",
       "key": "AppCoreTests.ModelTests › testConnectFlipsState",
-      "line": 93,
+      "line": 95,
       "registeredAt": "2026-06-22T19:41:43.406519+00:00",
       "runner": "tests"
     },
@@ -466,6 +551,13 @@
       "key": "AppCoreTests.ModelTests › testEmptyStateIsDisconnected",
       "line": 10,
       "registeredAt": "2026-06-22T19:41:43.398712+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "UserPreferences falls back to the default step goal when none is set, and persists a set goal.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.ModelTests › testGoalDefaults",
+      "registeredAt": "2026-06-25T15:49:35Z",
       "runner": "tests"
     },
     {
@@ -502,6 +594,141 @@
       "key": "AppCoreTests.ModelTests › testReadStateFromFlatDefaults",
       "line": 57,
       "registeredAt": "2026-06-22T19:41:43.402746+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "Setting the daily step goal applies it to the dashboard immediately and persists it.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.ModelTests › testSetGoalStepsApplies",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "A fresh install has every reminder off, with sensible default times.",
+      "file": "Tests/AppCoreTests/IntegrationModuleTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.ReminderSettingsTests › testDefaultsAreOff",
+      "line": 16,
+      "registeredAt": "2026-06-25T16:43:33.258311+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "An explicitly-set midnight hour 0 is preserved, not mistaken for unset.",
+      "file": "Tests/AppCoreTests/IntegrationModuleTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.ReminderSettingsTests › testMidnightDailyHourPreserved",
+      "line": 37,
+      "registeredAt": "2026-06-25T16:43:33.264169+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "save() then load() round-trips every reminder field exactly.",
+      "file": "Tests/AppCoreTests/IntegrationModuleTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.ReminderSettingsTests › testSaveLoadRoundTrip",
+      "line": 27,
+      "registeredAt": "2026-06-25T16:43:33.260574+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "A 400 maps to a server error, not invalidKey, so it never blames the user key.",
+      "file": "Tests/AppCoreTests/IntegrationModuleTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RemoteCoachTests › test400IsServerNotInvalidKey",
+      "line": 131,
+      "registeredAt": "2026-06-25T16:43:33.280402+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "A 401 is the only status that maps to invalidKey.",
+      "file": "Tests/AppCoreTests/IntegrationModuleTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RemoteCoachTests › test401IsInvalidKey",
+      "line": 119,
+      "registeredAt": "2026-06-25T16:43:33.276368+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "A 429 maps to the rateLimited error.",
+      "file": "Tests/AppCoreTests/IntegrationModuleTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RemoteCoachTests › test429IsRateLimited",
+      "line": 125,
+      "registeredAt": "2026-06-25T16:43:33.278235+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "A 200 with malformed JSON is a server error so the caller falls back to the mock.",
+      "file": "Tests/AppCoreTests/IntegrationModuleTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RemoteCoachTests › testMalformedBodyIsServer",
+      "line": 137,
+      "registeredAt": "2026-06-25T16:43:33.282452+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "A 200 with a valid body decodes into a CoachReply.",
+      "file": "Tests/AppCoreTests/IntegrationModuleTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RemoteCoachTests › testSuccessDecodes",
+      "line": 110,
+      "registeredAt": "2026-06-25T16:43:33.274443+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "Continuing as guest is remembered so the app does not re-prompt on the next launch.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.SessionStoreTests › testContinueAsGuestRemembered",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "Deleting the account forgets the identity and the guest choice, returning to the welcome screen.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.SessionStoreTests › testDeleteAccountResets",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "A previously-saved Apple identifier resumes the signed-in state on launch.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.SessionStoreTests › testExistingTokenResumesSignedIn",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "Production with no saved identity and no guest choice shows the sign-in screen.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.SessionStoreTests › testFreshProductionIsUndecided",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "A normal seeded scenario skips sign-in so previews go straight to content.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.SessionStoreTests › testSeededScenarioSkipsToGuest",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "Signing in persists the Apple identifier and moves to the signed-in state.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.SessionStoreTests › testSignInPersists",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "A scenario can opt in to preview the sign-in welcome screen.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.SessionStoreTests › testSignInPreviewSeedShowsSignIn",
+      "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "Signing out forgets the Apple identity but keeps the app usable as a guest.",
+      "format": "junit-xml",
+      "key": "AppCoreTests.SessionStoreTests › testSignOutBecomesGuest",
+      "registeredAt": "2026-06-25T15:49:35Z",
       "runner": "tests"
     },
     {
