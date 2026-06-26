@@ -41,6 +41,10 @@ public struct SettingsView: View {
     @State private var customGoalExpanded = false
     @State private var customGoalDraft = UserPreferences.defaultGoal
 
+    // Race goals add/edit editor (sheet). `editingRace == nil` => adding.
+    @State private var showRaceEditor = false
+    @State private var editingRace: RaceGoal?
+
     public init(model: OtterpaceModel, session: SessionStore, onClose: @escaping () -> Void = {},
                 onReplayTour: @escaping () -> Void = {}) {
         self.model = model
@@ -64,6 +68,7 @@ public struct SettingsView: View {
                         healthCard
                         if strava.isConfigured { stravaCard }
                         coachCard
+                        racesCard
                         remindersCard
                         goalCard
                         privacyCard
@@ -100,6 +105,17 @@ public struct SettingsView: View {
             Text("This removes your sign-in from this device and deletes any data synced to your account. Health data is only ever synced if you turned it on.")
         }
         .sheet(isPresented: $showHealthConsent) { healthConsentSheet }
+        .sheet(isPresented: $showRaceEditor) {
+            RaceEditorView(
+                existing: editingRace,
+                onSave: { race in
+                    if editingRace == nil { model.addRace(race) } else { model.updateRace(race) }
+                    Analytics.shared.capture("race_added")
+                    showRaceEditor = false
+                },
+                onCancel: { showRaceEditor = false }
+            )
+        }
         .confirmationDialog("Turn off health sync?", isPresented: $confirmHealthOff, titleVisibility: .visible) {
             Button("Turn off & delete synced data", role: .destructive) {
                 healthSyncOn = false
@@ -363,6 +379,64 @@ public struct SettingsView: View {
                 }
             }
         }
+    }
+
+    // MARK: Races (optional, feed the coach)
+
+    @ViewBuilder private var racesCard: some View {
+        card("Races") {
+            if model.today.races.isEmpty {
+                Text("Add a race and Buddy will tailor your coaching — building toward it, then easing off as it nears.")
+                    .font(Typography.callout).foregroundColor(Palette.ink)
+                    .fixedSize(horizontal: false, vertical: true)
+                actionRow("Add a race", icon: "flag.checkered", tint: Palette.brand) {
+                    editingRace = nil; showRaceEditor = true
+                }
+            } else {
+                ForEach(model.today.races.sorted { $0.date < $1.date }) { race in
+                    raceRow(race)
+                }
+                actionRow("Add a race", icon: "plus.circle", tint: Palette.brand) {
+                    editingRace = nil; showRaceEditor = true
+                }
+            }
+        }
+    }
+
+    private func raceRow(_ race: RaceGoal) -> some View {
+        let past = race.date < todayISO
+        let detail = "\(raceMiles(race.distanceMiles)) mi · \(prettyDate(race.date))"
+            + (race.location.isEmpty ? "" : " · \(race.location)")
+        return HStack(spacing: 12) {
+            Image(systemName: "flag.checkered")
+                .foregroundColor(past ? Palette.subtle : Palette.brand).frame(width: 24)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(race.name).font(Typography.body).foregroundColor(Palette.ink)
+                Text(detail).font(Typography.caption).foregroundColor(Palette.subtle).lineLimit(1)
+            }
+            Spacer()
+            Button { editingRace = race; showRaceEditor = true } label: {
+                Image(systemName: "pencil").foregroundColor(Palette.sky).padding(6)
+            }
+            .accessibilityLabel("Edit \(race.name)")
+            Button { model.removeRace(id: race.id) } label: {
+                Image(systemName: "trash").foregroundColor(Palette.brandDeep).padding(6)
+            }
+            .accessibilityLabel("Delete \(race.name)")
+        }
+        .opacity(past ? 0.55 : 1)
+    }
+
+    private func raceMiles(_ d: Double) -> String {
+        d == d.rounded() ? "\(Int(d))" : String(format: "%.1f", d)
+    }
+
+    private var todayISO: String {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(identifier: "UTC")
+        return f.string(from: Date())
     }
 
     // MARK: Movement reminders

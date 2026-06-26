@@ -17,6 +17,7 @@ public enum CoachIntent: String, CaseIterable {
     case mileageTooFast     // "am I increasing mileage too fast?"
     case injuryPain         // "my knee hurts after my run"
     case postRunReflection  // "how did my run go?"
+    case raceGoal           // "make me a plan for my October half"
     case general            // catch-all: "what should I do today?"
 
     /// Classify a free-text question. Injury/pain is checked first so a
@@ -40,6 +41,12 @@ public enum CoachIntent: String, CaseIterable {
         if has(["how was", "how did", "reflect", "run go", "rate my", "last run"]) {
             return .postRunReflection
         }
+        // Race wording routes to dedicated race coaching. Kept AFTER injury/mileage
+        // so safety routing is never overridden, and the keywords avoid the
+        // step-goal terms ("10k"/"5k") that belong to .hit10K.
+        if has(["marathon", "race", "taper", "goal race", "race plan", "race day"]) {
+            return .raceGoal
+        }
         return .general
     }
 }
@@ -62,15 +69,55 @@ public struct CoachReply: Equatable {
 public enum CoachEngine {
     /// Build a curated, context-aware reply to `question` given the day's state.
     /// Pure and deterministic — the same inputs always yield the same reply.
-    public static func reply(to question: String, context: TodayState) -> CoachReply {
+    public static func reply(to question: String, context: TodayState, asOf today: String = "") -> CoachReply {
+        let day = resolvedToday(today, context)
         switch CoachIntent.classify(question) {
         case .injuryPain:        return injuryReply(context)
         case .mileageTooFast:    return mileageReply(context)
         case .hit10K:            return stepsReply(context)
         case .runOrRest:         return runOrRestReply(context)
         case .postRunReflection: return reflectionReply(context)
-        case .general:           return generalReply(context)
+        case .raceGoal:          return raceReply(context, asOf: day)
+        case .general:           return generalReply(context, asOf: day)
         }
+    }
+
+    /// The "today" date used for race math: an explicit override wins, else the
+    /// context's own date, else the system date (only hit in production / when no
+    /// race is set, so determinism for the no-race tests is preserved).
+    private static func resolvedToday(_ asOf: String, _ c: TodayState) -> String {
+        if !asOf.isEmpty { return asOf }
+        if !c.date.isEmpty { return c.date }
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(identifier: "UTC")
+        return f.string(from: Date())
+    }
+
+    /// Race-aware coaching clause for the soonest upcoming race, or nil when none.
+    /// Phase-based: race day, taper week (<=7d), sharpen (<=21d), build (>21d).
+    private static func raceClause(_ c: TodayState, asOf today: String) -> String? {
+        guard let race = RaceGoal.next(in: c.races, asOf: today),
+              let days = RaceGoal.daysUntil(date: race.date, asOf: today) else { return nil }
+        if days <= 0 {
+            return "Race day for your \(race.name). Keep it calm, trust your training, and run your plan. You've done the work."
+        }
+        if days <= 7 {
+            return "Your \(race.name) is in \(days) day\(days == 1 ? "" : "s"). This is taper time: keep runs short and easy, prioritize sleep, and trust the work you've banked."
+        }
+        if days <= 21 {
+            return "Your \(race.name) is about \(days) days out. Sharpen gently now, but don't cram. A little quality, plenty of easy."
+        }
+        return "You've got \(miles(race.distanceMiles)) mi at \(race.name) in \(days) days. Plenty of runway: build gradually, about 10% a week, and keep most runs easy."
+    }
+
+    private static func raceReply(_ c: TodayState, asOf today: String) -> CoachReply {
+        if let clause = raceClause(c, asOf: today) {
+            return CoachReply(intent: .raceGoal, text: clause, mood: .ready)
+        }
+        let text = "Tell me about your race in Settings — the name, distance, and date — and I'll build your training toward it, then ease you off as it nears. What are you aiming at?"
+        return CoachReply(intent: .raceGoal, text: text, mood: .ready)
     }
 
     // Use the data we have, but never push through warning signs. A recent hard
@@ -126,10 +173,15 @@ public enum CoachEngine {
         return CoachReply(intent: .postRunReflection, text: text, mood: .ready)
     }
 
-    private static func generalReply(_ c: TodayState) -> CoachReply {
+    private static func generalReply(_ c: TodayState, asOf today: String) -> CoachReply {
         if ranHardRecently(c) {
             let text = "After that recent effort, today is an easy movement day. Go for 30 to 45 minutes of walking and some light mobility. That's how hard work turns into fitness instead of soreness. How are you feeling after it?"
             return CoachReply(intent: .general, text: text, mood: .recovery)
+        }
+        // A fresh user with a race on the calendar gets race-phase framing as their
+        // "what should I do today" answer. Safety (recovery, above) still wins.
+        if let clause = raceClause(c, asOf: today) {
+            return CoachReply(intent: .general, text: clause, mood: .ready)
         }
         let remaining = max(0, c.goalSteps - c.steps)
         if remaining > 0 {

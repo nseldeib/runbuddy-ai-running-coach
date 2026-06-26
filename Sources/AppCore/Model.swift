@@ -72,6 +72,7 @@ public struct TodayState: Codable, Equatable {
     public var weeklyLoad: WeeklyLoad?
     public var coach: CoachRecommendation?
     public var workouts: [LatestWorkout]   // recent history, newest-first; [] => day-one empty
+    public var races: [RaceGoal]           // optional upcoming races; [] => none set
 
     public init(
         healthKitConnected: Bool,
@@ -85,7 +86,8 @@ public struct TodayState: Codable, Equatable {
         latestWorkout: LatestWorkout? = nil,
         weeklyLoad: WeeklyLoad? = nil,
         coach: CoachRecommendation? = nil,
-        workouts: [LatestWorkout] = []
+        workouts: [LatestWorkout] = [],
+        races: [RaceGoal] = []
     ) {
         self.healthKitConnected = healthKitConnected
         self.date = date
@@ -99,6 +101,7 @@ public struct TodayState: Codable, Equatable {
         self.weeklyLoad = weeklyLoad
         self.coach = coach
         self.workouts = workouts
+        self.races = races
     }
 
     // Production default: nothing connected yet, blank day-one state.
@@ -133,6 +136,9 @@ public final class OtterpaceModel: ObservableObject {
         } else {
             self.init(today: .empty, source: source)
             self.healthAuth = source.authorizationState()
+            // Races live on-device (not in the HealthKit snapshot), so load them
+            // so a real user's races reach coaching from launch.
+            self.today.races = RaceStore.load(defaults)
         }
     }
 
@@ -177,6 +183,15 @@ public final class OtterpaceModel: ObservableObject {
             workouts = decoded
         }
 
+        // Races: a JSON-encoded array under one key (same shape as rbWorkoutsJSON),
+        // so a scenario can seed upcoming races for capture.
+        var races: [RaceGoal] = []
+        if let json = d.string(forKey: "rbRacesJSON"), !json.isEmpty,
+           let data = json.data(using: .utf8),
+           let decoded = try? JSONDecoder().decode([RaceGoal].self, from: data) {
+            races = decoded
+        }
+
         var coach: CoachRecommendation? = nil
         if let headline = d.string(forKey: "rbCoachHeadline"), !headline.isEmpty {
             coach = CoachRecommendation(
@@ -200,7 +215,8 @@ public final class OtterpaceModel: ObservableObject {
             latestWorkout: workout,
             weeklyLoad: load,
             coach: coach,
-            workouts: workouts
+            workouts: workouts,
+            races: races
         )
     }
 
@@ -257,6 +273,12 @@ public final class OtterpaceModel: ObservableObject {
         UserPreferences.setGoalSteps(goal)
         today.goalSteps = goal
     }
+
+    // MARK: Races (persist through RaceStore + apply to the dashboard immediately)
+
+    @MainActor public func addRace(_ race: RaceGoal) { today.races = RaceStore.add(race) }
+    @MainActor public func updateRace(_ race: RaceGoal) { today.races = RaceStore.update(race) }
+    @MainActor public func removeRace(id: UUID) { today.races = RaceStore.remove(id: id) }
 
     /// Ingest activities imported from Strava (an optional data source alongside
     /// Apple Health). Populates the workout history + latest workout, and flips

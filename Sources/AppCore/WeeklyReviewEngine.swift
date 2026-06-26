@@ -52,21 +52,56 @@ public struct WeeklyReview: Equatable {
 public enum WeeklyReviewEngine {
     /// Build the week's recap from the day's state. Pure and deterministic — the
     /// same context always yields the same review.
-    public static func generate(from context: TodayState) -> WeeklyReview {
-        // No week to summarize yet → the friendly first-week prompt.
-        guard let load = context.weeklyLoad, hasLoggedActivity(load) else {
-            return emptyReview()
-        }
+    public static func generate(from context: TodayState, asOf today: String = "") -> WeeklyReview {
+        var review: WeeklyReview = {
+            // No week to summarize yet → the friendly first-week prompt.
+            guard let load = context.weeklyLoad, hasLoggedActivity(load) else {
+                return emptyReview()
+            }
+            // Spiking load is the one safety-sensitive state — it wins regardless of
+            // how many runs went in, mirroring the coach's injury-aware bias.
+            if load.loadTrend == "spiking" {
+                return spikingReview(load, context)
+            }
+            if isSparse(load) {
+                return sparseReview(load, context)
+            }
+            return solidReview(load, context)
+        }()
 
-        // Spiking load is the one safety-sensitive state — it wins regardless of
-        // how many runs went in, mirroring the coach's injury-aware bias.
-        if load.loadTrend == "spiking" {
-            return spikingReview(load, context)
+        applyRaceNote(&review, context: context, asOf: resolvedToday(today, context))
+        return review
+    }
+
+    // MARK: Race awareness (additive; never overrides the spiking caution)
+
+    /// Fold a race-phase note into the review when an upcoming race exists. The
+    /// spiking (safety) review keeps precedence — the race note rides alongside as
+    /// "even with the race coming up, ease off." Pure + deterministic on `asOf`.
+    private static func applyRaceNote(_ review: inout WeeklyReview, context: TodayState, asOf today: String) {
+        guard let race = RaceGoal.next(in: context.races, asOf: today),
+              let days = RaceGoal.daysUntil(date: race.date, asOf: today), days >= 0 else { return }
+        let nm = race.name
+        if !review.hasActivity {
+            review.nextWeek += " And you've got \(nm) on the calendar. We'll build toward it the moment activity shows up."
+        } else if review.safetyFlag {
+            review.nextWeek += " Even with \(nm) coming up, this is the week to ease off. Race fitness is protected by staying healthy."
+        } else if days <= 7 {
+            review.nextWeek += " And with \(nm) in \(days) day\(days == 1 ? "" : "s"), this is taper week: keep runs short and easy, and trust the work."
+            review.focusArea = "Taper for \(nm). Less is more now. Fresh legs beat tired ones on race day."
+        } else {
+            review.nextWeek += " Keep building toward \(nm), \(days) days out, about 10% a week with most runs easy."
         }
-        if isSparse(load) {
-            return sparseReview(load, context)
-        }
-        return solidReview(load, context)
+    }
+
+    private static func resolvedToday(_ asOf: String, _ c: TodayState) -> String {
+        if !asOf.isEmpty { return asOf }
+        if !c.date.isEmpty { return c.date }
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.timeZone = TimeZone(identifier: "UTC")
+        return f.string(from: Date())
     }
 
     // MARK: Classification
