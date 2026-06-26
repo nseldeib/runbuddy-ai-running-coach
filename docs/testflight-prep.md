@@ -61,6 +61,45 @@ in Vercel first so it tells you the exact records, then enter them in Namecheap.
 > Web DNS only. Adding `hello@otterpace.com` later is separate **MX** records and
 > won't conflict with the above.
 
+### Email — `hello@otterpace.com` (free send + receive)
+
+Make `hello@otterpace.com` a fully usable, **free** support address — both receive
+and send — without exposing the personal Gmail anywhere public. Inbound already
+works; only the "send as" half needs wiring.
+
+**Receiving (already live, nothing to change).** Namecheap's free **Email
+Forwarding** is configured on `otterpace.com` (MX `eforward1–5.registrar-servers.com`
++ the forwarding SPF), so mail to `hello@` forwards to the Gmail inbox.
+- Namecheap → Domain List → **Manage** `otterpace.com` → **Mail Settings = Email
+  Forwarding** → confirm the alias `hello@ → <your gmail>` exists.
+
+**Sending as `hello@otterpace.com` (free Brevo SMTP relay).** Gmail's "Send mail
+as" + a free Brevo relay (300 emails/day) so replies leave as `hello@`, not Gmail.
+
+1. **Brevo** (brevo.com, free tier) → create account → **SMTP & API → SMTP**: note
+   the server `smtp-relay.brevo.com`, port `587`, your SMTP **login** + generated
+   SMTP **key** (password). Complete Brevo's domain authentication for
+   `otterpace.com` if prompted (adds Brevo's DKIM/`brevo-code` TXT records in
+   Namecheap → Advanced DNS).
+2. **Merge SPF — never add a second `v=spf1` record** (a domain may have only one).
+   Edit the existing TXT in Namecheap:
+   - From: `v=spf1 include:spf.efwd.registrar-servers.com ~all`
+   - To:   `v=spf1 include:spf.efwd.registrar-servers.com include:spf.brevo.com ~all`
+3. **Gmail** → Settings → **Accounts and Import → Send mail as → Add another email
+   address**: name `Otterpace`, email `hello@otterpace.com`, **uncheck** "Treat as
+   an alias". SMTP `smtp-relay.brevo.com`, port `587`, username = Brevo login,
+   password = Brevo SMTP key, **TLS**. Gmail emails a confirmation code to
+   `hello@` → it forwards to the Gmail inbox (step above) → enter it.
+4. **Verify:** receive (external → `hello@` lands in Gmail), send (Gmail From =
+   `hello@` arrives at an external inbox showing `hello@`, not Gmail), and
+   deliverability ([mail-tester.com](https://www.mail-tester.com) → **SPF + DKIM
+   pass**, aim ~10/10).
+
+**Fallback (option a) — forwarding-only.** If Brevo domain auth / send-as is more
+trouble than it's worth at launch, skip the "send as" steps: inbound forwarding
+alone still receives mail and still hides the published address (replies just go
+out from Gmail). Still free, still no personal address exposed.
+
 ---
 
 ## B. Add the build as a new TestFlight app

@@ -28,12 +28,16 @@ Hard rules — never break these:
 - Keep weekly mileage growth modest (~10% rule of thumb). Most runs should be easy/conversational.
 
 Style:
-- 2–4 sentences. Concrete and kind. Use the provided context (steps, goal, recent workouts, weekly load) to make it specific.
+- Sound like a real, experienced human running coach, not an AI. Never say you are an AI and never narrate your own process.
+- Do NOT use em dashes. Use periods or commas, and keep sentences short and declarative.
+- Lead with a clear, direct recommendation. Then give a short reason. Then usually end with one genuine check-in question (how the legs feel, how sleep was, what this week's goal is). Skip the question when the moment calls for caution: on pain or injury, stay calm and directive, no question.
+- Be kind and constructive, never hedgy or filler-heavy. Cut softeners and apologies.
+- Keep it to 2 to 4 sentences and make it specific using the provided context (steps, goal, recent workouts, weekly load).
 - Pick a mood that matches the message: "concerned" or "recovery" for caution/rest, "celebrating"/"cheering" for wins, "ready" for go-ahead, "jogging"/"resting" otherwise.
 
 Race awareness:
-- The context may include "races" (an array of upcoming races with name, distanceMiles, date, location). When present, identify the soonest race whose date is today or later and reason about how many days away it is: in the final week, advise a taper (short, easy runs, sleep, trust the work); 1–3 weeks out, sharpen gently without cramming; further out, build gradually (~10% per week) toward the distance; on race day, give brief calm encouragement. Reference the race name, distance, and location naturally.
-- Race ambition NEVER overrides the hard safety rules above. If the user has pain, a spiking load, or recent hard efforts, caution and the ~10% rule win even with a race coming up — say so plainly.`;
+- The context may include "races" (an array of upcoming races with name, distanceMiles, date, location). When present, identify the soonest race whose date is today or later and reason about how many days away it is: in the final week, advise a taper (short, easy runs, sleep, trust the work); 1 to 3 weeks out, sharpen gently without cramming; further out, build gradually (about 10% per week) toward the distance; on race day, give brief calm encouragement. Reference the race name, distance, and location naturally.
+- Race ambition NEVER overrides the hard safety rules above. If the user has pain, a spiking load, or recent hard efforts, caution and the 10% rule win even with a race coming up. Say so plainly.`;
 
 // Structured output: constrain Claude to exactly the shape the app's CoachReply
 // decoder expects. mood is restricted to the app's BuddyMood raw values.
@@ -71,7 +75,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Best-effort throttle (see _lib/ratelimit.ts for the per-instance caveat).
   if (!allow(`coach:${clientIp(req)}`, 30, 60_000, Date.now())) {
-    res.status(429).json({ error: "rate_limited", message: "One sec — too many requests. Try again in a moment." });
+    res.status(429).json({ error: "rate_limited", message: "One sec. Too many requests just now. Try again in a moment." });
     return;
   }
 
@@ -135,7 +139,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (message.stop_reason === "refusal") {
       res.status(200).json({
-        text: "I can't help with that one — let's keep it to your running and movement. What would you like to work on today?",
+        text: "That one's outside what I coach. Let's put it toward your running instead. What do you want to work on today?",
         mood: "ready",
         safetyFlag: false,
       });
@@ -157,7 +161,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       parsed = JSON.parse(textBlock.text);
     } catch {
       res.status(200).json({
-        text: "I got a little tangled forming that answer — mind asking again, maybe a bit more specifically?",
+        text: "That didn't come out right on my end. Ask me again, and try to be a little more specific?",
         mood: "ready",
         safetyFlag: false,
       });
@@ -175,7 +179,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
     if (status === 429) {
-      res.status(429).json({ error: "rate_limited", message: "Your Anthropic account is rate limited — try again shortly." });
+      res.status(429).json({ error: "rate_limited", message: "Your Anthropic account is rate limited. Try again shortly." });
       return;
     }
     res.status(502).json({ error: "upstream_error" });

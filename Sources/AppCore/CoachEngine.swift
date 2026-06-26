@@ -131,51 +131,51 @@ public enum CoachEngine {
     // MARK: Intent replies
 
     private static func injuryReply(_ c: TodayState) -> CoachReply {
-        let text = "I can't diagnose injuries, so let's play it safe. If the pain is sharp, persistent, or getting worse, please check in with a clinician. For now, skip hard running — rest, gentle walking, and light mobility are the right call until it settles. We'll ease back in once you're pain-free."
+        let text = "I can't diagnose injuries, so let's play it safe. If the pain is sharp, persistent, or getting worse, see a clinician. For now, skip hard running. Rest, gentle walking, and light mobility are the right call until it settles, and we'll ease back in once you're pain-free."
         return CoachReply(intent: .injuryPain, text: text, mood: .concerned, safetyFlag: true)
     }
 
     private static func mileageReply(_ c: TodayState) -> CoachReply {
         if let l = c.weeklyLoad, l.loadTrend == "spiking" {
-            let text = "Your weekly load is climbing fast (about \(miles(l.weeklyMileage)) mi this week). That's where injury risk creeps in. Let's hold mileage steady or pull back ~10% next week, keep most runs easy, and protect your rest days. Sustainable beats heroic."
+            let text = "Your weekly load is climbing fast, about \(miles(l.weeklyMileage)) mi this week. That's where injury risk creeps in, so let's hold steady or pull back about 10% next week and keep most runs easy. How's recovery feeling right now?"
             return CoachReply(intent: .mileageTooFast, text: text, mood: .concerned, safetyFlag: true)
         }
-        let text = "Good instinct to check. A safe rule of thumb is keeping weekly mileage growth under ~10%, with an easier week every few weeks. You're in a reasonable range right now — keep most runs conversational and you'll build fitness without the injury tax."
+        let text = "Good instinct to check. Keep weekly mileage growth under about 10%, with an easier week every few weeks. You're in a reasonable range right now, so keep most runs conversational and the fitness builds without the injury tax. What's the goal for this block?"
         return CoachReply(intent: .mileageTooFast, text: text, mood: .ready)
     }
 
     private static func stepsReply(_ c: TodayState) -> CoachReply {
         let remaining = max(0, c.goalSteps - c.steps)
         if remaining == 0 {
-            let text = "You've already cleared \(formatted(c.goalSteps)) steps today — nice work! Anything more is a bonus. A gentle walk to loosen up is plenty."
+            let text = "You've already cleared \(formatted(c.goalSteps)) steps today. Nice work. Anything more is a bonus, so a gentle walk to loosen up is plenty."
             return CoachReply(intent: .hit10K, text: text, mood: .celebrating)
         }
         let minutes = max(8, Int((Double(remaining) / 110.0).rounded()))
-        let text = "You're \(formatted(remaining)) steps from \(formatted(c.goalSteps)). A relaxed \(minutes)-minute walk gets you there without adding real training stress — podcast optional but encouraged. No need to rush it all at once."
+        let text = "You're \(formatted(remaining)) steps from \(formatted(c.goalSteps)). A relaxed \(minutes)-minute walk gets you there without adding real training stress, podcast optional but encouraged. No need to rush it all at once."
         return CoachReply(intent: .hit10K, text: text, mood: .ready)
     }
 
     private static func runOrRestReply(_ c: TodayState) -> CoachReply {
         if ranHardRecently(c) {
-            let text = "You put in a solid effort recently, so today leans toward recovery. An easy 20–40 minute walk or some light mobility will help that work settle into fitness. If you're itching to move, keep it gentle — save the hard stuff for when you're fresh."
+            let text = "Take today easy. You put in a solid effort recently, so an easy 20 to 40 minute walk or some light mobility will help that work settle into fitness. How do the legs feel today?"
             return CoachReply(intent: .runOrRest, text: text, mood: .recovery)
         }
-        let text = "You look reasonably fresh, so an easy run is on the table — keep it conversational, nothing heroic. If your legs feel heavy or sleep was rough, a brisk walk is a perfectly good substitute. Listen to the body first."
+        let text = "An easy run is on the table today. Keep it conversational, nothing heroic, and if your legs feel heavy or sleep was rough a brisk walk is a perfectly good substitute. How do the legs feel?"
         return CoachReply(intent: .runOrRest, text: text, mood: .ready)
     }
 
     private static func reflectionReply(_ c: TodayState) -> CoachReply {
         if let w = c.latestWorkout {
-            let text = "Your last \(w.type) was \(miles(w.distanceMiles)) mi at \(w.pace) — a real effort in the bank. Notice how the legs feel today: a little tired is normal, sharp or one-sided pain is not. Recover well and the next one comes easier."
+            let text = "Your last \(w.type) was \(miles(w.distanceMiles)) mi at \(w.pace), a real effort in the bank. A little tired today is normal, sharp or one-sided pain is not. How are the legs feeling after it?"
             return CoachReply(intent: .postRunReflection, text: text, mood: .cheering)
         }
-        let text = "I don't see a recent run logged yet. Once you've got one in, ask me again and I'll help you reflect on how it went and what to do next."
+        let text = "I don't see a recent run logged yet. Get one in, then ask me again and I'll help you reflect on how it went and where to go next. What are you thinking of running?"
         return CoachReply(intent: .postRunReflection, text: text, mood: .ready)
     }
 
     private static func generalReply(_ c: TodayState, asOf today: String) -> CoachReply {
         if ranHardRecently(c) {
-            let text = "After that recent effort, today is an easy movement day. Buddy suggests 30–45 minutes of walking and some light mobility — that's how hard work turns into fitness instead of soreness."
+            let text = "After that recent effort, today is an easy movement day. Go for 30 to 45 minutes of walking and some light mobility. That's how hard work turns into fitness instead of soreness. How are you feeling after it?"
             return CoachReply(intent: .general, text: text, mood: .recovery)
         }
         // A fresh user with a race on the calendar gets race-phase framing as their
@@ -185,10 +185,10 @@ public enum CoachEngine {
         }
         let remaining = max(0, c.goalSteps - c.steps)
         if remaining > 0 {
-            let text = "Today's a great day for easy movement. You're \(formatted(remaining)) steps from your goal — a relaxed walk covers most of that. Keep it light and consistent; that's what builds the habit."
+            let text = "Today's a great day for easy movement. You're \(formatted(remaining)) steps from your goal, and a relaxed walk covers most of that. Keep it light and consistent, that's what builds the habit. Want to aim for a quick walk now?"
             return CoachReply(intent: .general, text: text, mood: .ready)
         }
-        let text = "You're already on track today — goal met and moving well. Keep things easy, hydrate, and let's set up tomorrow to feel just as good."
+        let text = "You're already on track today, goal met and moving well. Keep things easy and hydrate, and let's set tomorrow up to feel just as good. Anything on your mind for the week?"
         return CoachReply(intent: .general, text: text, mood: .cheering)
     }
 }

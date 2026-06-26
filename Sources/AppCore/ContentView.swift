@@ -23,6 +23,12 @@ public struct ContentView: View {
     @State private var tab: MainTab
     @State private var showSettings: Bool
 
+    // First-run welcome tour: shown once on first launch (before Sign-in) and
+    // replayable from Settings. Gated by OnboardingState; never shown under a
+    // preview/scenario unless a scenario opts in via rbStartScreen="onboarding".
+    @State private var showOnboarding: Bool
+    private let startOnboardingPage = OnboardingState.startPage()
+
     // Scenario-only override: a scenario can seed `rbContentSize` (e.g. "xxxl",
     // "accessibility3") to force a Dynamic Type size for the whole app, so the
     // large-text accessibility states render in a capture. Empty (production) =>
@@ -34,6 +40,10 @@ public struct ContentView: View {
         _tab = State(initialValue: MainTab(raw: seeded))
         // Scenario hook: seed `rbShowSettings` to open Settings on the first frame.
         _showSettings = State(initialValue: UserDefaults.standard.bool(forKey: "rbShowSettings"))
+        _showOnboarding = State(initialValue: OnboardingState.shouldShow(
+            defaults: .standard,
+            seeded: HealthSource.isScenarioSeeded(),
+            startScreen: UserDefaults.standard.string(forKey: "rbStartScreen") ?? ""))
     }
 
     /// Revalidate the durable Apple session against Apple's credential state.
@@ -80,9 +90,26 @@ public struct ContentView: View {
             // always findable). Skipped on the Buddy preview host + sign-in screen.
             if showSettings && previewMode.isEmpty && session.state != .undecided {
                 SettingsView(model: model, session: session,
-                             onClose: { withAnimation(Motion.overlay) { showSettings = false } })
+                             onClose: { withAnimation(Motion.overlay) { showSettings = false } },
+                             onReplayTour: { withAnimation(Motion.overlay) { showSettings = false; showOnboarding = true } })
                     .overlayTransition()
                     .zIndex(2)
+            }
+
+            // First-run welcome tour sits at the top of the stack (above Settings
+            // and Sign-in), gated like them by previewMode.
+            if showOnboarding && previewMode.isEmpty {
+                OnboardingFlowView(
+                    onFinish: {
+                        OnboardingState.markSeen()
+                        Analytics.shared.capture("onboarding_completed")
+                        withAnimation(Motion.overlay) { showOnboarding = false }
+                    },
+                    startPage: startOnboardingPage
+                )
+                .overlayTransition()
+                .zIndex(3)
+                .onAppear { Analytics.shared.capture("onboarding_started") }
             }
         }
         .modifier(DynamicTypeOverride(raw: contentSizeOverride))
