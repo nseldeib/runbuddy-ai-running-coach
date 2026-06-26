@@ -1,0 +1,23 @@
+{
+  "claimStartedAt": "2026-06-26T19:41:11Z",
+  "completedAt": "2026-06-26T21:15:03Z",
+  "completedBy": {
+    "agentProvider": "claude",
+    "codeyamEditorVersion": "0.1.0",
+    "machine": "MacBookPro",
+    "pid": 39545,
+    "priority": 0,
+    "selectedPlan": "human-coach-voice",
+    "sessionId": "b343c392-a913-4249-a003-b4f1a7ff94dd",
+    "startedAt": "2026-06-26T19:41:11Z"
+  },
+  "createdAt": "2026-06-26T00:00:00Z",
+  "deliverables": [
+    "test/api/session-lib.test.ts"
+  ],
+  "journalTimestamp": "2026-06-26T21:15:03Z",
+  "mode": "ui",
+  "planFile": "completed/human-coach-voice.md",
+  "slug": "human-coach-voice",
+  "title": "More Human Coach Voice"
+}

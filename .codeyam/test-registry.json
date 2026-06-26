@@ -1,6 +1,42 @@
 {
   "tests": [
     {
+      "description": "Clearing the account-session store forgets the stored bearer token.",
+      "file": "Tests/AppCoreTests/AccountSessionTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.AccountSessionTests › testClearForgetsToken",
+      "line": 24,
+      "registeredAt": "2026-06-26T21:09:31.870628+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "An empty stored value reads back as nil (no session), never an empty bearer.",
+      "file": "Tests/AppCoreTests/AccountSessionTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.AccountSessionTests › testEmptyTokenReadsAsNil",
+      "line": 32,
+      "registeredAt": "2026-06-26T21:09:38.760449+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "A stored session token round-trips through the account-session store unchanged.",
+      "file": "Tests/AppCoreTests/AccountSessionTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.AccountSessionTests › testTokenRoundTrips",
+      "line": 17,
+      "registeredAt": "2026-06-26T21:09:45.577067+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "The transport's token provider returns the stored token, or nil when none so requests go out unauthenticated.",
+      "file": "Tests/AppCoreTests/AccountSessionTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.AccountSessionTests › testTransportTokenProviderReflectsStore",
+      "line": 42,
+      "registeredAt": "2026-06-26T21:09:52.496078+00:00",
+      "runner": "tests"
+    },
+    {
       "description": "Turning health sync off with keep-data does not delete the remote health row.",
       "format": "junit-xml",
       "key": "AppCoreTests.AccountSyncTests › testDisableHealthSyncKeepDoesNotDelete",
@@ -207,6 +243,51 @@
       "key": "AppCoreTests.ActivityHistoryTests › testTotalMilesSums",
       "line": 32,
       "registeredAt": "2026-06-23T22:05:33.324640+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "weeklyLoad reads as 'building' when there is activity this week but no prior-week mileage.",
+      "file": "Tests/AppCoreTests/ActivityHistoryTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.ActivityHistoryTests › testWeeklyLoadBuildingFromZeroBase",
+      "line": 137,
+      "registeredAt": "2026-06-26T21:09:59.173247+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "weeklyLoad with no workouts is an all-rest, steady week with nothing logged.",
+      "file": "Tests/AppCoreTests/ActivityHistoryTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.ActivityHistoryTests › testWeeklyLoadEmptyIsRestWeek",
+      "line": 143,
+      "registeredAt": "2026-06-26T21:10:05.699781+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "weeklyLoad reads as 'recovering' when mileage pulls back versus the previous week.",
+      "file": "Tests/AppCoreTests/ActivityHistoryTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.ActivityHistoryTests › testWeeklyLoadRecoveringTrend",
+      "line": 128,
+      "registeredAt": "2026-06-26T21:10:12.708461+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "weeklyLoad rolls up mileage, longest run, run-days and rest-days from only the week containing asOf.",
+      "file": "Tests/AppCoreTests/ActivityHistoryTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.ActivityHistoryTests › testWeeklyLoadRollsUpCurrentWeek",
+      "line": 105,
+      "registeredAt": "2026-06-26T21:10:19.497691+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "weeklyLoad flags a big jump over the prior week as 'spiking' (the safety signal).",
+      "file": "Tests/AppCoreTests/ActivityHistoryTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.ActivityHistoryTests › testWeeklyLoadSpikingTrend",
+      "line": 119,
+      "registeredAt": "2026-06-26T21:10:26.351096+00:00",
       "runner": "tests"
     },
     {
@@ -813,6 +894,141 @@
       "format": "junit-xml",
       "key": "AppCoreTests.ModelTests › testSetGoalStepsApplies",
       "registeredAt": "2026-06-25T15:49:35Z",
+      "runner": "tests"
+    },
+    {
+      "description": "First launch (nothing seen, not seeded) shows the onboarding tour.",
+      "file": "Tests/AppCoreTests/OnboardingStateTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.OnboardingStateTests › testFirstLaunchShows",
+      "line": 14,
+      "registeredAt": "2026-06-26T21:10:33.117976+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "A scenario-seeded run skips the onboarding tour by default.",
+      "file": "Tests/AppCoreTests/OnboardingStateTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.OnboardingStateTests › testSeededScenarioSkips",
+      "line": 28,
+      "registeredAt": "2026-06-26T21:10:39.645252+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "After markSeen(), the onboarding tour never auto-shows again.",
+      "file": "Tests/AppCoreTests/OnboardingStateTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.OnboardingStateTests › testSeenHidesTour",
+      "line": 20,
+      "registeredAt": "2026-06-26T21:10:46.223120+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "startPage reads and clamps rbOnboardingPage into the valid range.",
+      "file": "Tests/AppCoreTests/OnboardingStateTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.OnboardingStateTests › testStartPageClamps",
+      "line": 41,
+      "registeredAt": "2026-06-26T21:10:52.765008+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "startScreen == 'onboarding' forces the tour even when already seen (preview/replay).",
+      "file": "Tests/AppCoreTests/OnboardingStateTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.OnboardingStateTests › testStartScreenForcesShow",
+      "line": 34,
+      "registeredAt": "2026-06-26T21:10:59.286009+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "Classifies whether a chat message expresses race intent.",
+      "file": "Tests/AppCoreTests/RaceGoalsTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RaceGoalsTests › testClassifyRaceIntent",
+      "line": 78,
+      "registeredAt": "2026-06-26T21:11:19.827313+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "daysUntil computes the day count from now to a race date.",
+      "file": "Tests/AppCoreTests/RaceGoalsTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RaceGoalsTests › testDaysUntil",
+      "line": 16,
+      "registeredAt": "2026-06-26T21:11:26.494100+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "Distance presets resolve and clamp into the supported range.",
+      "file": "Tests/AppCoreTests/RaceGoalsTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RaceGoalsTests › testDistancePresetsAndClamp",
+      "line": 31,
+      "registeredAt": "2026-06-26T21:11:33.212876+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "A general coaching reply is race-aware even for a fresh user.",
+      "file": "Tests/AppCoreTests/RaceGoalsTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RaceGoalsTests › testGeneralReplyIsRaceAwareForFreshUser",
+      "line": 98,
+      "registeredAt": "2026-06-26T21:11:39.873164+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "Race-aware coaching replies reflect the correct training phase.",
+      "file": "Tests/AppCoreTests/RaceGoalsTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RaceGoalsTests › testRaceReplyPhases",
+      "line": 86,
+      "registeredAt": "2026-06-26T21:11:46.581257+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "Read state decodes seeded races from the scenario seed.",
+      "file": "Tests/AppCoreTests/RaceGoalsTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RaceGoalsTests › testReadStateDecodesSeededRaces",
+      "line": 61,
+      "registeredAt": "2026-06-26T21:11:53.327236+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "The race store round-trips persisted races and applies mutations.",
+      "file": "Tests/AppCoreTests/RaceGoalsTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RaceGoalsTests › testStoreRoundTripsAndMutates",
+      "line": 42,
+      "registeredAt": "2026-06-26T21:11:59.895089+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "Computes the upcoming races and the single next race.",
+      "file": "Tests/AppCoreTests/RaceGoalsTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RaceGoalsTests › testUpcomingAndNext",
+      "line": 23,
+      "registeredAt": "2026-06-26T21:12:06.622477+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "The weekly review folds in taper guidance when a race is near.",
+      "file": "Tests/AppCoreTests/RaceGoalsTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RaceGoalsTests › testWeeklyReviewFoldsInTaper",
+      "line": 107,
+      "registeredAt": "2026-06-26T21:12:13.092405+00:00",
+      "runner": "tests"
+    },
+    {
+      "description": "A spiking-load safety signal keeps precedence over race messaging in the weekly review.",
+      "file": "Tests/AppCoreTests/RaceGoalsTests.swift",
+      "format": "junit-xml",
+      "key": "AppCoreTests.RaceGoalsTests › testWeeklyReviewSpikingKeepsPrecedenceWithRace",
+      "line": 116,
+      "registeredAt": "2026-06-26T21:12:19.799284+00:00",
       "runner": "tests"
     },
     {

@@ -500,10 +500,71 @@
     }
   },
   {
+    "description": "Fixed-window in-memory rate-limit check: true when the key is under its limit for the current window. Best-effort, per-instance.",
+    "filePath": "api/_lib/ratelimit.ts",
+    "name": "allow",
+    "tags": [
+      "backend",
+      "ratelimit"
+    ],
+    "testFile": "test/api/coach.test.ts"
+  },
+  {
+    "description": "Fetch a path from the live App Store Connect API with a bearer JWT (maintainer build-status script).",
+    "filePath": "Scripts/asc-build-status.mjs",
+    "name": "api",
+    "tags": [
+      "ops",
+      "script"
+    ],
+    "untestabilityReason": {
+      "justification": "calls the live App Store Connect REST API; standalone maintainer ops script with no offline harness, not part of the shipped app",
+      "kind": "no-isolation-harness"
+    }
+  },
+  {
     "description": "Pure mapping from Apple's ASAuthorizationAppleIDProvider.CredentialState to the decoupled AppleCredentialState enum (authorized/revoked/notFound/unknown), with .transferred treated as inconclusive so the session is retained.",
     "filePath": "Sources/AppCore/Auth/AppleCredentialChecker.swift",
     "name": "appleCredentialState",
     "testFile": "Tests/AppCoreTests/AppleCredentialMappingTests.swift"
+  },
+  {
+    "description": "Base64url-encode a buffer for the App Store Connect ES256 JWT (maintainer build-status script).",
+    "filePath": "Scripts/asc-build-status.mjs",
+    "name": "b64url",
+    "tags": [
+      "ops",
+      "script"
+    ],
+    "untestabilityReason": {
+      "justification": "pure base64url string transform with no branching logic, inside a standalone maintainer ops script",
+      "kind": "trivial-wrapper"
+    }
+  },
+  {
+    "description": "Extract the raw bearer token from a request Authorization header, or null. Case-insensitive on the scheme.",
+    "filePath": "api/_lib/session.ts",
+    "name": "bearerToken",
+    "tags": [
+      "backend",
+      "auth",
+      "session"
+    ],
+    "testFile": "test/api/session-lib.test.ts"
+  },
+  {
+    "description": "Resolve the expected Apple bundle id (the identity-token audience) from env, defaulting to the app bundle.",
+    "filePath": "api/_lib/apple.ts",
+    "name": "bundleId",
+    "tags": [
+      "backend",
+      "auth",
+      "apple"
+    ],
+    "untestabilityReason": {
+      "justification": "reads an env var with a constant default; no branching logic",
+      "kind": "trivial-wrapper"
+    }
   },
   {
     "description": "Clamps a custom daily step goal into the minGoal...maxGoal range and rounds it to the nearest goalIncrement, so any user-dialed value is always in-bounds and on a clean 500-step rail.",
@@ -512,16 +573,59 @@
     "testFile": "Tests/AppCoreTests/ModelTests.swift"
   },
   {
+    "description": "Derive a client IP from the x-forwarded-for header for rate-limit keying.",
+    "filePath": "api/_lib/ratelimit.ts",
+    "name": "clientIp",
+    "tags": [
+      "backend",
+      "ratelimit"
+    ],
+    "testFile": "test/api/coach.test.ts"
+  },
+  {
+    "description": "Mint a session for a verified user: generate a 256-bit token, store its hash in Supabase, and return the raw token (shown to the client once).",
+    "filePath": "api/_lib/session.ts",
+    "name": "createSession",
+    "tags": [
+      "backend",
+      "auth",
+      "session"
+    ],
+    "testFile": "test/api/session-lib.test.ts"
+  },
+  {
     "description": "Deletes the user's account_health row entirely - the opt-out and delete-my-health-data path; tolerates a 404.",
     "filePath": "api/_lib/account.ts",
     "name": "deleteHealth",
     "testFile": "test/api/account.test.ts"
   },
   {
+    "description": "Revoke a session by token hash (sign-out / token rotation). Idempotent — a 404 is not an error.",
+    "filePath": "api/_lib/session.ts",
+    "name": "deleteSession",
+    "tags": [
+      "backend",
+      "auth",
+      "session"
+    ],
+    "testFile": "test/api/session-lib.test.ts"
+  },
+  {
     "description": "Deletes a device's Strava token row from Supabase, tolerating a 404 and throwing on other errors.",
     "filePath": "api/_lib/strava.ts",
     "name": "deleteToken",
     "testFile": "test/api/strava.test.ts"
+  },
+  {
+    "description": "Extract and validate the x-device-key request header, returning the trimmed key (empty string when absent/invalid).",
+    "filePath": "api/_lib/strava.ts",
+    "name": "deviceKeyFromHeader",
+    "tags": [
+      "backend",
+      "strava",
+      "validation"
+    ],
+    "testFile": "test/api/strava-handlers.test.ts"
   },
   {
     "description": "Pure, case-insensitive mapping from a scenario-seeded rbContentSize string (e.g. xxxl, accessibility3) to a SwiftUI DynamicTypeSize; empty/unrecognized returns nil to honor the system size. Drives the app-wide Dynamic Type override for accessibility text-size scenarios.",
@@ -584,6 +688,17 @@
     "testFile": "test/api/account-handlers.test.ts"
   },
   {
+    "description": "Vercel endpoint /api/account/session: POST verifies an Apple identity token and mints a bearer session; DELETE revokes the current session (idempotent sign-out).",
+    "filePath": "api/account/session.ts",
+    "name": "handler",
+    "tags": [
+      "backend",
+      "auth",
+      "endpoint"
+    ],
+    "testFile": "test/api/session.test.ts"
+  },
+  {
     "description": "Serverless endpoint for the settings/preferences sync stream: GET reads the prefs row, PUT does a last-write-wins upsert and rejects any payload carrying health fields.",
     "filePath": "api/account/sync.ts",
     "name": "handler",
@@ -620,6 +735,17 @@
     "testFile": "test/api/strava-handlers.test.ts"
   },
   {
+    "description": "SHA-256 hex of a session token — only this hash is ever persisted, never the raw token.",
+    "filePath": "api/_lib/session.ts",
+    "name": "hashToken",
+    "tags": [
+      "backend",
+      "auth",
+      "session"
+    ],
+    "testFile": "test/api/session-lib.test.ts"
+  },
+  {
     "description": "Builds the Supabase PostgREST URL for the account_health table from SUPABASE_URL.",
     "filePath": "api/_lib/account.ts",
     "name": "healthEndpoint",
@@ -636,6 +762,30 @@
     "filePath": "Sources/AppCore/Preferences.swift",
     "name": "isPreset",
     "testFile": "Tests/AppCoreTests/ModelTests.swift"
+  },
+  {
+    "description": "True when a device-key string matches the allowed 16–128 char [A-Za-z0-9_-] pattern.",
+    "filePath": "api/_lib/strava.ts",
+    "name": "isValidDeviceKey",
+    "tags": [
+      "backend",
+      "strava",
+      "validation"
+    ],
+    "testFile": "test/api/strava-handlers.test.ts"
+  },
+  {
+    "description": "Mint a short-lived ES256 App Store Connect API JWT from the local AuthKey (maintainer build-status script).",
+    "filePath": "Scripts/asc-build-status.mjs",
+    "name": "jwt",
+    "tags": [
+      "ops",
+      "script"
+    ],
+    "untestabilityReason": {
+      "justification": "signs a JWT with a local App Store Connect private key file for the live ASC API; standalone maintainer ops script, not part of the shipped app",
+      "kind": "no-isolation-harness"
+    }
   },
   {
     "description": "Maps a single Strava activity to a MappedWorkout, returning null when the date is missing or malformed; computes miles and pace.",
@@ -674,10 +824,42 @@
     "testFile": "Tests/AppCoreTests/FormattersTests.swift"
   },
   {
+    "description": "Authenticate a request from its bearer session token, returning the verified user id or null (handlers map null to 401). User id derives only from the token, never the request body.",
+    "filePath": "api/_lib/session.ts",
+    "name": "requireUser",
+    "tags": [
+      "backend",
+      "auth",
+      "session"
+    ],
+    "testFile": "test/api/session-lib.test.ts"
+  },
+  {
     "description": "Rounds a number to one decimal place.",
     "filePath": "api/_lib/strava.ts",
     "name": "round1",
     "testFile": "test/api/strava.test.ts"
+  },
+  {
+    "description": "Recursively walk a prefs payload (bounded depth) detecting any health-related key, backing prefsContainHealthFields so the prefs endpoint never stores health data.",
+    "filePath": "api/_lib/account.ts",
+    "name": "scanForHealthKey",
+    "tags": [
+      "backend",
+      "account",
+      "privacy"
+    ],
+    "testFile": "test/api/account.test.ts"
+  },
+  {
+    "description": "Supabase REST URL for the account_sessions table, derived from SUPABASE_URL.",
+    "filePath": "api/_lib/session.ts",
+    "name": "sessionsEndpoint",
+    "tags": [
+      "backend",
+      "session"
+    ],
+    "testFile": "test/api/session-lib.test.ts"
   },
   {
     "description": "Builds the VoiceOver spoken summary for the step-goal ring, mirroring the three caption states with whole-number step, goal, and remaining counts; never shame-based.",
@@ -726,5 +908,30 @@
     "filePath": "api/_lib/strava.ts",
     "name": "upsertToken",
     "testFile": "test/api/strava.test.ts"
+  },
+  {
+    "description": "Resolve the user id for a bearer token by its stored hash, or null when it is not a live session.",
+    "filePath": "api/_lib/session.ts",
+    "name": "userIdForToken",
+    "tags": [
+      "backend",
+      "auth",
+      "session"
+    ],
+    "testFile": "test/api/session-lib.test.ts"
+  },
+  {
+    "description": "Verify a Sign in with Apple identity token (issuer, audience, signature) against Apple live JWKS and return the stable user sub.",
+    "filePath": "api/_lib/apple.ts",
+    "name": "verifyAppleIdentityToken",
+    "tags": [
+      "backend",
+      "auth",
+      "apple"
+    ],
+    "untestabilityReason": {
+      "justification": "verifies tokens against Apple live JWKS endpoint (appleid.apple.com) with no deterministic offline path. The handler that consumes it is covered in test/api/session.test.ts with the verifier mocked.",
+      "kind": "no-isolation-harness"
+    }
   }
 ]

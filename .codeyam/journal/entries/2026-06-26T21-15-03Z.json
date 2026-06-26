@@ -1,0 +1,121 @@
+{
+  "timestamp": "2026-06-26T21:15:03Z",
+  "title": "More Human Coach Voice",
+  "type": "feature",
+  "userRequest": "## Summary\n\nRetune the AI coach's voice so it reads like a sharp, caring human running coach instead of an AI assistant. Across both coach surfaces — the live model prompt in `api/coach.ts` and the deterministic on-device mock in `CoachEngine.swift` — we cut the em dashes, ask more genuine questions, and lead with kind, constructive, *direct* coaching statements. The safety rules, structured-output shape, moods, and safety flags are untouched; this is a voice change, not a behavior change.\n\n## Key Decisions\n\n- **Both surfaces, one voice.** The live coach (`SYSTEM_PROMPT`) and the offline/preview/scenario mock (`CoachEngine`) must sound the same, so a user never feels a tone seam between \"real\" and offline replies. Updating only one leaves the coach inconsistent.\n- **Em dashes out, not just reduced.** Replace em dashes with periods, commas, or two shorter sentences. Em dashes are the single biggest \"AI tell\" in the current copy. Prefer short, declarative sentences.\n- **More questions, but earned ones.** A human coach checks in: \"How do the legs feel today?\" / \"What's the goal for this block?\" Add a genuine question to most replies, but never to the injury reply (there we stay directive and safe, not inquisitive).\n- **Direct + kind, not hedgy.** Lead with the call (\"Take today easy.\"), then the why, then a check-in question. Drop filler softeners and AI-isms (\"I got a little tangled\", \"let's keep it to…\").\n- **Preserve everything the tests and decoder depend on.** Keep the substrings and structure the existing tests assert on (see below) so this lands as a pure voice change with green tests.\n\n## Implementation\n\n### 1. Rewrite the live coach system prompt + fallback copy\n\n**File**: `api/coach.ts`\n\n- Rewrite the `Style` section of `SYSTEM_PROMPT` (lines ~30–32) to encode the new voice explicitly. New guidance to include:\n  - Sound like a real, experienced human coach, not an AI. Never say you are an AI, never narrate your own process.\n  - **Do not use em dashes (—).** Use periods or commas. Keep sentences short and declarative.\n  - Lead with a clear, direct recommendation, then a short reason, then usually one genuine check-in question (e.g. how the legs feel, how sleep was, what the week's goal is). Skip the question when the moment calls for caution (pain/injury) — there, be calm and directive.\n  - Kind and constructive, never hedgy or filler-heavy. No \"let's keep it to\", no over-apologizing.\n  - Keep it to 2–4 sentences and make it specific using the provided context.\n- Keep the `Hard rules` block and `mood` guidance intact (safety behavior must not change). The existing rule \"Never shame the user\" stays.\n- Rewrite the two hardcoded fallback strings to match the new voice and drop their em dashes:\n  - Refusal fallback (line ~134): currently `\"I can't help with that one — let's keep it to your running and movement. What would you like to work on today?\"` → something direct and warm with no em dash, e.g. `\"That one's outside what I coach. Let's put it toward your running instead. What do you want to work on today?\"`\n  - Malformed-JSON fallback (line ~156): currently `\"I got a little tangled forming that answer — mind asking again, maybe a bit more specifically?\"` → e.g. `\"That didn't come out right on my end. Ask me again, and try to be a little more specific?\"`\n- The rate-limit message (line ~70) also contains an em dash; rewrite it for consistency (e.g. `\"One sec. Too many requests just now. Try again in a moment.\"`).\n- Do **not** change `FORMAT`, the schema, moods, `safetyFlag` semantics, status codes, or any control flow. `test/api/coach.test.ts` asserts on status codes and moods, not prose, so these copy changes are test-safe.\n\n### 2. Rewrite the mock coach reply strings\n\n**File**: `Sources/AppCore/CoachEngine.swift`\n\nRewrite the `text` strings in each intent reply method to the new voice: no em dashes, direct lead, a check-in question where natural, human and warm. Keep every method's `intent`, `mood`, `safetyFlag`, and the interpolated values exactly as they are. Specifics per method:\n\n- `injuryReply` — stays directive and calm, **no question**. Must still say it can't diagnose and must keep the word **\"clinician\"** (test `testInjuryReplyIsSafetyFlagged` asserts `text.lowercased().contains(\"clinician\")` and the can't-diagnose phrasing). Remove em dashes; tighten to short sentences.\n- `mileageReply` (spiking branch) — keep the interpolated `miles(l.weeklyMileage)` value. Direct caution, add a check-in question (e.g. about how recovery feels). No em dashes.\n- `mileageReply` (steady branch) — reassuring and direct, end on a question. No em dashes.\n- `stepsReply` (goal reached) — celebrate directly, optional light question. No em dashes.\n- `stepsReply` (below goal) — keep the interpolated `formatted(remaining)`, `formatted(c.goalSteps)`, and `minutes`. Test `testStepsReplyBelowGoal` asserts the text contains **\"3,600\"** (the remaining-steps value), so the remaining count must stay rendered via `formatted(remaining)`. No em dashes.\n- `runOrRestReply` (both branches) — lead with the call (recover today / easy run is fine), then a \"how do the legs feel?\" style question. No em dashes.\n- `reflectionReply` (with workout) — keep the interpolated `miles(w.distanceMiles)` so the text still contains **\"8.1\"** in the hard-run state (test `testReflectionWithWorkout` asserts `text.contains(\"8.1\")`). Reflective, ends on a question. No em dashes.\n- `reflectionReply` (no workout) — direct and inviting, ask them to log a run and come back. No em dashes.\n- `generalReply` (all three branches) — keep interpolated `formatted(remaining)` where present. Direct, human, with a check-in question. Avoid the third-person \"Buddy suggests\"; speak in first person like a coach. No em dashes.\n\nLeave `CoachIntent.classify`, the structs, `ranHardRecently`, and all helpers untouched — classification and routing behavior must not change.\n\n## Reused existing code\n\n- `CoachEngine.reply(to:context:)` and the per-intent reply methods from `Sources/AppCore/CoachEngine.swift` (glossary entry: `CoachEngine`) — rewritten in place, same signatures and return shapes.\n- `CoachIntent` from `Sources/AppCore/CoachEngine.swift` (glossary entry: `CoachIntent`) — unchanged; routing stays as-is.\n- `handler` from `api/coach.ts` (glossary entry: `handler`, test `test/api/coach.test.ts`) — only `SYSTEM_PROMPT` and fallback/message copy change.\n- The interpolation helpers already used in the mock (`miles`, `formatted`) — keep using them so test substrings (`3,600`, `8.1`) stay intact.\n- Existing test suites `Tests/AppCoreTests/CoachEngineTests.swift` and `test/api/coach.test.ts` — both should stay green unchanged after the rewrite; they pin intent/mood/safetyFlag and a few value substrings, all of which we preserve.\n\n## Scenarios to Demonstrate\n\n- **Run-or-rest, fresh legs** — direct \"easy run is on the table\" with a how-do-the-legs-feel check-in, no em dashes, `mood: ready`.\n- **Run-or-rest, after a hard run / spiking load** — directive recovery call plus a check-in question, `mood: recovery`, no safety shame.\n- **Injury / pain question** — calm, directive, no question, keeps \"clinician\", `safetyFlag: true`, `mood: concerned`.\n- **Mileage ramping too fast, spiking load** — direct caution with the weekly-mileage value and a recovery check-in, `safetyFlag: true`.\n- **Steps below goal** — direct nudge naming the remaining steps (e.g. 3,600) and minutes, ends on a light question.\n- **Post-run reflection with a logged run** — reflective, cites the 8.1 mi run, ends on a question, `mood: cheering`.\n- **Empty / no run logged** — inviting and direct, asks them to log a run and return.\n- **General check-in, goal already met** — warm, direct, first-person (no \"Buddy suggests\"), with a forward-looking question.",
+  "description": "Retuned the AI running coach so it reads like a sharp, caring human coach instead of an AI assistant, across both surfaces in lockstep: the live model system prompt and fallback copy in api/coach.ts and the deterministic on-device mock in CoachEngine.swift. The new voice cuts em dashes, leads with a direct, kind recommendation, then a short reason, then usually one genuine check-in question (staying calm and directive on pain/injury). Safety rules, structured-output shape, moods, and safety flags are untouched: this is a pure voice change, not a behavior change, and the existing coach tests stay green.",
+  "modifiedFiles": [
+    {
+      "path": ".codeyam/dependency-graph.json",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/glossary.json",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/accessibility-large-text-coach-safety--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/accessibility-large-text-today--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/settings--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/settings-account-sync--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/settings-custom-goal--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/settings-health-sync-on--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/settings-reminders-on--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/sign-in-welcome--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-almost-there--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-custom-goal--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-day-one-connect--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-fresh-start--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-goal-crushed--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-long-content--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-midday-nudge--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-recovery-caution--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-zero-step-morning--iphone-16.png.hash",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/state/provider-auth-verdict.json",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/test-cache.json",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/test-registry.json",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/ask-coach-race-taper--iphone-16.png.hash",
+      "status": "added"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/today-add-a-race-banner--iphone-16.png.hash",
+      "status": "added"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/welcome-ask-me-anything--iphone-16.png.hash",
+      "status": "added"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/welcome-day-by-day-coaching--iphone-16.png.hash",
+      "status": "added"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/welcome-meet-buddy--iphone-16.png.hash",
+      "status": "added"
+    },
+    {
+      "path": "test/api/session-lib.test.ts",
+      "status": "added"
+    }
+  ]
+}
