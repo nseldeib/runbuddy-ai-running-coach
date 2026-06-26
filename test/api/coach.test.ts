@@ -136,4 +136,30 @@ describe("coach handler", () => {
     expect(res.statusCode).toBe(502);
     expect((res.body as { error: string }).error).toBe("upstream_error");
   });
+
+  // BE-8: the user's API key must never reach the logs, even on the error path.
+  it("never logs the Anthropic API key", async () => {
+    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    const SECRET = "sk-ant-super-secret-key";
+    createMock.mockRejectedValue(Object.assign(new Error("boom"), { status: 500 }));
+    const { done } = call({ method: "POST", headers: { "x-anthropic-key": SECRET }, body: { question: "hi" } });
+    await done;
+    const logged = [...errSpy.mock.calls, ...logSpy.mock.calls].flat().join(" ");
+    expect(logged).not.toContain(SECRET);
+    errSpy.mockRestore();
+    logSpy.mockRestore();
+  });
+
+  // Over-long inputs are rejected before any model call (BE-4 size bounds).
+  it("413s on an over-long question", async () => {
+    const { res, done } = call({
+      method: "POST",
+      headers: { "x-anthropic-key": "sk-ant-xyz" },
+      body: { question: "x".repeat(3000) },
+    });
+    await done;
+    expect(res.statusCode).toBe(413);
+    expect(createMock).not.toHaveBeenCalled();
+  });
 });

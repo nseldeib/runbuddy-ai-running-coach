@@ -37,6 +37,26 @@ export function env(name: string): string {
   return v;
 }
 
+// The device key is an app-generated, high-entropy (256-bit) random string,
+// base64url-encoded. Validate the shape so a malformed/guessy value is rejected
+// before it ever reaches Supabase, and so logs/queries can't be poisoned.
+const DEVICE_KEY_RE = /^[A-Za-z0-9_-]{16,128}$/;
+
+export function isValidDeviceKey(value: string): boolean {
+  return DEVICE_KEY_RE.test(value);
+}
+
+/**
+ * Read the device key from the `x-device-key` request header. Kept OUT of the
+ * URL/query string so it never lands in proxy/CDN access logs (it's a
+ * bearer-equivalent secret). Returns "" when missing or malformed.
+ */
+export function deviceKeyFromHeader(headers: Record<string, unknown> | undefined): string {
+  const raw = headers?.["x-device-key"];
+  const value = (Array.isArray(raw) ? raw[0] : raw)?.toString().trim() ?? "";
+  return isValidDeviceKey(value) ? value : "";
+}
+
 export function supabaseHeaders(): Record<string, string> {
   const key = env("SUPABASE_SERVICE_ROLE_KEY");
   return {

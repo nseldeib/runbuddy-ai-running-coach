@@ -6,28 +6,38 @@ import {
   incomingWins,
   type HealthRow,
 } from "../_lib/account.js";
+import { requireUser } from "../_lib/session.js";
 
 // /api/account/health — the OPTIONAL health/activity sync stream.
 //
-//   GET    ?userId=…           → the stored health row (or { found: false }).
-//   PUT    { userId, health, updatedAt }
+//   GET                        → the stored health row (or { found: false }).
+//   PUT    { health, updatedAt }
 //                              → last-write-wins upsert (only ever called after
 //                                the user consents + enables health sync).
-//   DELETE { userId } | ?userId=…
-//                              → remove the row — the opt-out / "delete my
+//   DELETE                     → remove the row — the opt-out / "delete my
 //                                health data" path.
+//
+// The user is ALWAYS resolved from the `Authorization: Bearer <session token>`
+// via requireUser — never from the request body or query (which would let any
+// caller read/delete another user's data). Unauthenticated requests get 401.
 //
 // Kept in a table distinct from account_prefs so revoking/deleting health sync
 // never touches the user's settings, and a settings-only user never has a row
 // here at all.
+
+// A derived health snapshot is a handful of numbers; cap the JSON so a hostile
+// or buggy client can't push an unbounded blob into the row.
+const MAX_HEALTH_BYTES = 64 * 1024;
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
+    const userId = await requireUser(req);
+    if (!userId) {
+      res.status(401).json({ error: "unauthorized" });
+      return;
+    }
+
     if (req.method === "GET") {
-      const userId = (req.query?.userId ?? "").toString();
-      if (!userId) {
-        res.status(400).json({ error: "missing_user_id" });
-        return;
-      }
       const row = await getHealth(userId);
       res.status(200).json(row ? { found: true, ...row } : { found: false });
       return;
@@ -35,15 +45,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === "PUT") {
       const body = (req.body ?? {}) as {
-        userId?: string;
         health?: Record<string, unknown>;
         updatedAt?: string;
       };
-      const userId = (body.userId ?? "").toString();
       const health = body.health;
       const updatedAt = (body.updatedAt ?? "").toString();
-      if (!userId || !health || typeof health !== "object" || !updatedAt) {
-        res.status(400).json({ error: "missing_user_id_health_or_updated_at" });
+      if (!health || typeof health !== "object" || !updatedAt) {
+        res.status(400).json({ error: "missing_health_or_updated_at" });
+        return;
+      }
+      if (JSON.stringify(health).length > MAX_HEALTH_BYTES) {
+        res.status(413).json({ error: "health_payload_too_large" });
         return;
       }
 
@@ -59,12 +71,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "DELETE") {
-      const fromBody = (req.body ?? {}) as { userId?: string };
-      const userId = (req.query?.userId ?? fromBody.userId ?? "").toString();
-      if (!userId) {
-        res.status(400).json({ error: "missing_user_id" });
-        return;
-      }
       await deleteHealth(userId);
       res.status(200).json({ ok: true });
       return;

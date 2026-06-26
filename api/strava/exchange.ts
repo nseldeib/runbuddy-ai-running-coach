@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { exchangeCode, upsertToken } from "../_lib/strava.js";
+import { exchangeCode, upsertToken, isValidDeviceKey } from "../_lib/strava.js";
 
 // POST { code, deviceKey } — exchange the OAuth code for tokens (server-side,
 // using the client secret) and store them in Supabase keyed by the device key.
@@ -12,7 +12,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const body = (req.body ?? {}) as { code?: string; deviceKey?: string };
   const code = (body.code ?? "").toString();
   const deviceKey = (body.deviceKey ?? "").toString();
-  if (!code || !deviceKey) {
+  if (!code || !isValidDeviceKey(deviceKey)) {
     res.status(400).json({ error: "missing_code_or_device_key" });
     return;
   }

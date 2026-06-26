@@ -6,25 +6,33 @@ import {
   incomingWins,
   type PrefsRow,
 } from "../_lib/account.js";
+import { requireUser } from "../_lib/session.js";
 
 // /api/account/sync — the settings/preferences sync stream for a signed-in user.
 //
-//   GET  ?userId=…            → the stored prefs row (or { found: false }).
-//   PUT  { userId, prefs, updatedAt }
-//                             → last-write-wins upsert. If the stored row is
+//   GET                       → the stored prefs row (or { found: false }).
+//   PUT  { prefs, updatedAt }  → last-write-wins upsert. If the stored row is
 //                               newer, it wins and is returned unchanged.
+//
+// The user is resolved from the `Authorization: Bearer <session token>` via
+// requireUser — never from the request body or query. Unauthenticated → 401.
 //
 // This endpoint carries ONLY settings/preferences. A payload containing any
 // health field is rejected (defense in depth) so a settings-only user can never
 // leak health data into the wrong table.
+
+// Preferences are a tiny key/value bag (step goal, reminder prefs); cap the JSON.
+const MAX_PREFS_BYTES = 16 * 1024;
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
+    const userId = await requireUser(req);
+    if (!userId) {
+      res.status(401).json({ error: "unauthorized" });
+      return;
+    }
+
     if (req.method === "GET") {
-      const userId = (req.query?.userId ?? "").toString();
-      if (!userId) {
-        res.status(400).json({ error: "missing_user_id" });
-        return;
-      }
       const row = await getPrefs(userId);
       res.status(200).json(row ? { found: true, ...row } : { found: false });
       return;
@@ -32,15 +40,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (req.method === "PUT") {
       const body = (req.body ?? {}) as {
-        userId?: string;
         prefs?: Record<string, unknown>;
         updatedAt?: string;
       };
-      const userId = (body.userId ?? "").toString();
       const prefs = body.prefs;
       const updatedAt = (body.updatedAt ?? "").toString();
-      if (!userId || !prefs || typeof prefs !== "object" || !updatedAt) {
-        res.status(400).json({ error: "missing_user_id_prefs_or_updated_at" });
+      if (!prefs || typeof prefs !== "object" || !updatedAt) {
+        res.status(400).json({ error: "missing_prefs_or_updated_at" });
+        return;
+      }
+      if (JSON.stringify(prefs).length > MAX_PREFS_BYTES) {
+        res.status(413).json({ error: "prefs_payload_too_large" });
         return;
       }
       if (prefsContainHealthFields(prefs)) {

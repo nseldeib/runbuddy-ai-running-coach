@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { deleteToken } from "../_lib/strava.js";
+import { deleteToken, isValidDeviceKey } from "../_lib/strava.js";
 
 // POST { deviceKey } — forget this device's Strava tokens (server-side delete).
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -9,7 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   const body = (req.body ?? {}) as { deviceKey?: string };
   const deviceKey = (body.deviceKey ?? "").toString();
-  if (!deviceKey) {
+  if (!isValidDeviceKey(deviceKey)) {
     res.status(400).json({ error: "missing_device_key" });
     return;
   }

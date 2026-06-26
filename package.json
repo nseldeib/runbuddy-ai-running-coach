@@ -4,7 +4,8 @@
   "type": "module",
   "description": "Otterpace marketing site (site/) + AI coach API (api/), deployed on Vercel.",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.106.0"
+    "@anthropic-ai/sdk": "^0.106.0",
+    "jose": "^6.2.3"
   },
   "devDependencies": {
     "@vercel/node": "^5.8.20",

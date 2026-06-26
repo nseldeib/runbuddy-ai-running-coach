@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Anthropic from "@anthropic-ai/sdk";
+import { allow, clientIp } from "./_lib/ratelimit.js";
 
 // Otterpace AI coach — stateless BYO-key proxy.
 //
@@ -52,9 +53,21 @@ const FORMAT = {
   },
 };
 
+// Input bounds: a coaching question is a sentence or two, and the context is the
+// app's small TodayState. Cap both so a hostile caller can't push huge prompts
+// (which also protects the user's own token spend on their key).
+const MAX_QUESTION_LEN = 2000;
+const MAX_CONTEXT_BYTES = 16 * 1024;
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "method_not_allowed" });
+    return;
+  }
+
+  // Best-effort throttle (see _lib/ratelimit.ts for the per-instance caveat).
+  if (!allow(`coach:${clientIp(req)}`, 30, 60_000, Date.now())) {
+    res.status(429).json({ error: "rate_limited", message: "One sec — too many requests. Try again in a moment." });
     return;
   }
 
@@ -70,9 +83,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.status(400).json({ error: "missing_question" });
     return;
   }
+  if (question.length > MAX_QUESTION_LEN) {
+    res.status(413).json({ error: "question_too_long" });
+    return;
+  }
 
   // The full TodayState is sent as-is and stringified into the prompt as context.
   const context = body.context ? JSON.stringify(body.context) : "{}";
+  if (context.length > MAX_CONTEXT_BYTES) {
+    res.status(413).json({ error: "context_too_large" });
+    return;
+  }
 
   const client = new Anthropic({ apiKey });
 

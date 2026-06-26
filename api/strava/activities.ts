@@ -1,11 +1,13 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getToken, freshAccessToken, fetchMappedActivities } from "../_lib/strava.js";
+import { getToken, freshAccessToken, fetchMappedActivities, deviceKeyFromHeader } from "../_lib/strava.js";
 
-// GET ?deviceKey=... — read the device's Strava token from Supabase (refreshing
-// it server-side if expired), fetch recent activities, and return them mapped to
-// the app's workout shape. The app never handles the Strava access token.
+// GET (x-device-key header) — read the device's Strava token from Supabase
+// (refreshing it server-side if expired), fetch recent activities, and return
+// them mapped to the app's workout shape. The app never handles the Strava
+// access token. The device key rides in a header, never the query string, so it
+// stays out of access logs.
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const deviceKey = (req.query.deviceKey ?? "").toString();
+  const deviceKey = deviceKeyFromHeader(req.headers);
   if (!deviceKey) {
     res.status(400).json({ error: "missing_device_key" });
     return;
