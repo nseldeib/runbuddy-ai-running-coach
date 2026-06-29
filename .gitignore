@@ -51,6 +51,9 @@ blob-report/
 .codeyam/results-shown.json
 .codeyam/build-agent-handoff.md
 .codeyam/editor-step.json
+.codeyam/editor-step.json.bak
+.codeyam/editor-step.json.preserve
+.codeyam/armed-wakeups.json
 .codeyam/editor-user-prompt.txt
 .codeyam/editor-pending-plan.json
 .codeyam/recent-runs.json

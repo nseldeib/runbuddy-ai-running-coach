@@ -9,3 +9,4 @@
 .codeyam/test-registry.json merge=codeyam-test-registry
 .codeyam/per-test-evidence.json merge=codeyam-per-test-evidence
 .codeyam/state/finalize-debt.json merge=codeyam-finalize-debt
+.codeyam/scenarios/screenshots/*.png.hash merge=ours

@@ -1,13 +1,18 @@
 #!/usr/bin/env node
-// Report the processing state of Otterpace builds in App Store Connect.
+// Report the processing + TestFlight review state of Otterpace builds in App Store Connect.
 //
 // Usage:
 //   ASC_KEY_ID=... ASC_ISSUER_ID=... node Scripts/asc-build-status.mjs [bundleId] [version]
 //
 // Auth: signs an ES256 JWT with the ASC API key at
 // ~/.appstoreconnect/private_keys/AuthKey_<KEY_ID>.p8 (same key used for upload).
-// Prints one line per matching build and exits 0 when a build is VALID, 2 while
-// still PROCESSING / not yet ingested, 1 on FAILED/INVALID or error.
+// Prints one line per matching build — its processingState (PROCESSING/VALID/…)
+// and, when the build has been submitted for external TestFlight testing, its
+// Beta App Review state (Waiting for Review / In Review / Approved / Rejected).
+// Exit code reflects PROCESSING only: 0 when a build is VALID, 2 while still
+// PROCESSING / not yet ingested, 1 on FAILED/INVALID or error. (Review state is
+// informational and does not change the exit code — a VALID build can sit in the
+// review queue for days, which is normal, not a failure.)
 
 import crypto from "node:crypto";
 import fs from "node:fs";
@@ -58,7 +63,10 @@ if (!app) {
   process.exit(1);
 }
 
-let path = `/v1/builds?filter[app]=${app.id}&fields[builds]=version,processingState,uploadedDate,expired&limit=10&sort=-uploadedDate`;
+// NOTE: betaAppReviewSubmission must be in fields[builds] — a sparse fieldset
+// filters relationships too, so omitting it drops the link and every build looks
+// "not submitted" even when it's in the review queue.
+let path = `/v1/builds?filter[app]=${app.id}&fields[builds]=version,processingState,uploadedDate,expired,betaAppReviewSubmission&include=betaAppReviewSubmission&fields[betaAppReviewSubmissions]=betaReviewState&limit=10&sort=-uploadedDate`;
 if (VERSION) path += `&filter[version]=${encodeURIComponent(VERSION)}`;
 const builds = await api(path);
 
@@ -67,14 +75,37 @@ if (!builds.data?.length) {
   process.exit(2);
 }
 
+// Beta App Review submissions ride along in `included`, linked from each build's
+// betaAppReviewSubmission relationship. Map them by id so we can annotate builds.
+const reviewStateById = new Map();
+for (const inc of builds.included ?? []) {
+  if (inc.type === "betaAppReviewSubmissions") {
+    reviewStateById.set(inc.id, inc.attributes?.betaReviewState ?? "UNKNOWN");
+  }
+}
+// Apple's raw enum -> human label. A build with no submission was never sent for
+// external review (internal testers don't need it), so there's nothing to wait on.
+const REVIEW_LABEL = {
+  WAITING_FOR_REVIEW: "Waiting for Review",
+  IN_REVIEW: "In Review",
+  APPROVED: "Approved",
+  REJECTED: "Rejected",
+};
+
 let anyProcessing = false;
 let anyValid = false;
 for (const b of builds.data) {
   const a = b.attributes;
+  const subId = b.relationships?.betaAppReviewSubmission?.data?.id;
+  const rawReview = subId ? (reviewStateById.get(subId) ?? "UNKNOWN") : null;
+  const review = rawReview
+    ? `TestFlight review: ${REVIEW_LABEL[rawReview] ?? rawReview}`
+    : "not submitted for external review";
   console.log(
     `build ${a.version}: ${a.processingState}` +
       (a.uploadedDate ? `  (uploaded ${a.uploadedDate})` : "") +
-      (a.expired ? "  [expired]" : ""),
+      (a.expired ? "  [expired]" : "") +
+      `  | ${review}`,
   );
   if (a.processingState === "PROCESSING") anyProcessing = true;
   if (a.processingState === "VALID") anyValid = true;

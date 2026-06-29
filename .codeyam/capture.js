@@ -20,6 +20,21 @@ const { chromium } = require("playwright");
 const PLAYWRIGHT_MISSING_BROWSER_PATTERN = "Executable doesn't exist";
 const PLAYWRIGHT_INSTALL_COMMAND = "npx playwright install chromium";
 
+// Substrings Playwright/Chromium emit when the browser process dies on a
+// transient launch crash. On the cloud VM the base image has no dbus session,
+// so Chromium intermittently aborts at launch with `Received signal 11`
+// (SIGSEGV) — an environmental fault, not a scenario fault. Match either form
+// because the wording varies across Playwright releases and the OS signal
+// reporter.
+const PLAYWRIGHT_LAUNCH_CRASH_PATTERNS = ["SIGSEGV", "Received signal 11"];
+// A transient SIGSEGV launch crash is environmental, so a bounded retry clears
+// it. Keep it small — a genuinely broken environment must still surface loudly
+// rather than spin.
+const CAPTURE_LAUNCH_SIGSEGV_RETRIES = 2;
+// Short backoff between SIGSEGV retries so the transient fault has a moment to
+// clear; small enough not to eat the per-slug recapture budget.
+const CAPTURE_LAUNCH_SIGSEGV_BACKOFF_MS = 250;
+
 // Pin the headless capture browser's `localhost` resolution to the IPv4
 // loopback the editor's listeners bind. The browser-facing preview origin is
 // now `localhost` (secure-context apps refuse a bare IP — see
@@ -31,19 +46,62 @@ const PLAYWRIGHT_INSTALL_COMMAND = "npx playwright install chromium";
 const CAPTURE_HOST_RESOLVER_RULES = "MAP localhost 127.0.0.1";
 const CAPTURE_LAUNCH_ARGS = [
   `--host-resolver-rules=${CAPTURE_HOST_RESOLVER_RULES}`,
+  // Cloud-VM-no-dbus / containerized-launch hardening. Each flag below is
+  // inert on a healthy desktop, so the laptop capture path is unchanged; on
+  // the dbus-less cloud base image they stop Chromium from SIGSEGV-ing at
+  // launch (signal 11). See plan chromium-capture-dbus-crash-hardening.
+  // No setuid sandbox in the container (the cloud VM runs capture without the
+  // kernel namespaces the sandbox needs).
+  "--no-sandbox",
+  // /dev/shm is tiny in many containers; route shared memory to /tmp so the
+  // renderer doesn't crash allocating it.
+  "--disable-dev-shm-usage",
+  // No GPU on the headless cloud VM — avoid the GL init path that aborts.
+  "--disable-gpu",
+  // Stub out the dbus integration Chromium reaches for at launch; the cloud
+  // base image has no dbus session bus, which is the proximate cause of the
+  // signal-11 abort.
+  "--disable-features=DBus",
 ];
+// Point Chromium's dbus client at a dead address so it never blocks on (or
+// crashes against) a missing session bus. Spread over the real env in the
+// default launcher so the laptop path keeps its normal environment.
+const CAPTURE_LAUNCH_DBUS_ENV = { DBUS_SESSION_BUS_ADDRESS: "/dev/null" };
 
-// One-shot self-heal around `chromium.launch()`. If the first launch
-// throws the "missing browser" error, run `npx playwright install
-// chromium` synchronously (with `stdio: "inherit"` so the user sees
-// progress) and retry the launch exactly once. If the install or the
-// retry fails, rethrow the ORIGINAL Playwright error so the existing
-// `Scenario check failed: <stderr>` path keeps showing the actionable
-// message — looping would hide a real ops failure under a slow timeout.
+// Does this launch error look like a transient SIGSEGV browser crash?
+// (environmental — e.g. the cloud VM's missing dbus session bus — not a
+// scenario fault, so it is safe to retry).
+function isTransientLaunchCrash(error) {
+  return (
+    error &&
+    typeof error.message === "string" &&
+    PLAYWRIGHT_LAUNCH_CRASH_PATTERNS.some((pattern) =>
+      error.message.includes(pattern),
+    )
+  );
+}
+
+// Self-heal around `chromium.launch()`. Two recoverable classes:
+//
+//   1. "missing browser" — run `npx playwright install chromium` synchronously
+//      (with `stdio: "inherit"` so the user sees progress) and retry once.
+//   2. transient SIGSEGV launch crash — retry the launch up to
+//      `CAPTURE_LAUNCH_SIGSEGV_RETRIES` times with a short backoff, since the
+//      crash is environmental (dbus-less cloud VM) and clears on a retry.
+//
+// For any unrecognized error, or after exhausting retries, rethrow the
+// ORIGINAL Playwright error so the existing `Scenario check failed: <stderr>`
+// path keeps showing the actionable message — looping would hide a real ops
+// failure under a slow timeout.
 async function launchChromiumWithSelfHeal({
-  launch = () => chromium.launch({ args: CAPTURE_LAUNCH_ARGS }),
+  launch = () =>
+    chromium.launch({
+      args: CAPTURE_LAUNCH_ARGS,
+      env: { ...process.env, ...CAPTURE_LAUNCH_DBUS_ENV },
+    }),
   install = () => execSync(PLAYWRIGHT_INSTALL_COMMAND, { stdio: "inherit" }),
   stderr = process.stderr,
+  sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
 } = {}) {
   try {
     return await launch();
@@ -52,7 +110,24 @@ async function launchChromiumWithSelfHeal({
       error &&
       typeof error.message === "string" &&
       error.message.includes(PLAYWRIGHT_MISSING_BROWSER_PATTERN);
-    if (!isMissingBrowser) throw error;
+    const isTransientCrash = isTransientLaunchCrash(error);
+    if (!isMissingBrowser && !isTransientCrash) throw error;
+
+    if (isTransientCrash) {
+      for (let attempt = 1; attempt <= CAPTURE_LAUNCH_SIGSEGV_RETRIES; attempt++) {
+        stderr.write(
+          `Chromium crashed at launch (transient, likely a dbus-less environment) — retry ${attempt}/${CAPTURE_LAUNCH_SIGSEGV_RETRIES}.\n`,
+        );
+        await sleep(CAPTURE_LAUNCH_SIGSEGV_BACKOFF_MS);
+        try {
+          return await launch();
+        } catch (retryError) {
+          if (!isTransientLaunchCrash(retryError)) throw retryError;
+        }
+      }
+      throw error;
+    }
+
     stderr.write(
       "Playwright's Chromium browser is missing — installing it now (one-time ~150 MB download). Subsequent runs will be instant.\n",
     );
@@ -627,6 +702,11 @@ async function runScenarioCheck(
   const resolvedHarnessOrigin =
     harnessOrigin !== undefined ? harnessOrigin : resolveHarnessOrigin();
   const { url, outputPath, width, height, httpMocks = {} } = config;
+  // Per-scenario capture-check allowances (see `CaptureAllowances` /
+  // `ScenarioDefinition` on the Rust side). Default false so the guards keep
+  // their strict behavior for every scenario that does not opt in.
+  const allowMinimalRender = !!(config && config.allowMinimalRender);
+  const expectedConsoleErrors = !!(config && config.expectedConsoleErrors);
   let interactionEffect = null;
   let interactionRetried = false;
   const issues = [];
@@ -691,6 +771,13 @@ async function runScenarioCheck(
   page.on("console", (message) => {
     const issue = handleConsoleMessage(message);
     if (!issue) return;
+    // Per-scenario allowance: a scenario that provokes console errors by design
+    // (a broken-image fallback whose `<img>` is meant to 404) opts in via
+    // `expectedConsoleErrors`. Load-bearing: without it the console-error guard
+    // fails the capture instead of screenshotting the intended fallback UI. A
+    // non-opted-in scenario still fails, so an unexpected console error is never
+    // silently tolerated.
+    if (expectedConsoleErrors) return;
     // Console errors produced by the scenario's OWN declared error mocks
     // (status >= 400) are the intended behavior of an error-state scenario,
     // not a capture problem — skip them so "History - Load Error"-style
@@ -707,6 +794,12 @@ async function runScenarioCheck(
   });
 
   page.on("requestfailed", (request) => {
+    // Per-scenario allowance: the broken-image fallback scenario's `<img>` 404
+    // is a SAME-origin request failure it exists to demonstrate, so
+    // `expectedConsoleErrors` tolerates it here too (the console guard above
+    // relaxes the paired "Failed to load resource" error). Load-bearing for the
+    // same reason; a non-opted-in same-origin failure still fails the capture.
+    if (expectedConsoleErrors) return;
     // A cross-origin sub-resource failing must not fail an editor-shell
     // screenshot — only the captured page's OWN origin counts. The most common
     // case here is the live preview pane reaching the mocked project's app dev
@@ -760,10 +853,19 @@ async function runScenarioCheck(
     const loadingMarkers = Array.isArray(config.loadingMarkers)
       ? config.loadingMarkers
       : readStackLoadingMarkers();
+    // Content-stability window. Defaults to 10s; the editor's own WS-driven
+    // terminal/build route under self-hosting passes a longer `stableTimeoutMs`
+    // (its network never goes idle, so the default expired before the WS replay
+    // landed and the capture came back blank — VM1). Every other route omits the
+    // field and keeps the 10s default.
+    const stableTimeoutMs =
+      typeof config.stableTimeoutMs === "number" && config.stableTimeoutMs > 0
+        ? config.stableTimeoutMs
+        : 10000;
     const stableOutcome = await waitForStablePage(
       page,
       frame,
-      10000,
+      stableTimeoutMs,
       loadingMarkers,
     );
 
@@ -823,6 +925,18 @@ async function runScenarioCheck(
       contentState = await collectContentState(frame);
       await mergeVisibleTextLength(contentState, frame);
       hasContent = hasRenderableContent(contentState);
+    }
+
+    // Per-scenario allowance: a scenario whose intended UI is intrinsically
+    // minimal (an empty `<textarea>` the blank heuristic can't "see") opts in
+    // via `allowMinimalRender`. Accept the near-blank render as valid content so
+    // BOTH the blank issue below is skipped AND `buildResult`'s `ok` (which
+    // independently requires `hasContent`) can be true — otherwise the capture
+    // would still fail with an empty issue list. The cold-start retry already
+    // ran above, so a non-opted-in blank (a genuinely empty render) still falls
+    // through to the issue below.
+    if (!hasContent && allowMinimalRender) {
+      hasContent = true;
     }
 
     if (!hasContent) {
@@ -1044,10 +1158,13 @@ module.exports = {
   stripMarkerHeaders,
   main,
   launchChromiumWithSelfHeal,
+  isTransientLaunchCrash,
   CAPTURE_LAUNCH_ARGS,
   CAPTURE_HOST_RESOLVER_RULES,
+  CAPTURE_LAUNCH_SIGSEGV_RETRIES,
   PLAYWRIGHT_INSTALL_COMMAND,
   PLAYWRIGHT_MISSING_BROWSER_PATTERN,
+  PLAYWRIGHT_LAUNCH_CRASH_PATTERNS,
 };
 
 if (require.main === module) {
