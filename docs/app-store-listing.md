@@ -11,12 +11,12 @@ analytics is on, so nothing here claims "no tracking."
   - Alt if you want the descriptor in the name: `Otterpace: Running Coach` (24).
   - ⚠️ The name must be unique on the App Store; check availability when you
     create the app record.
-- **Subtitle** (≤30): `Your friendly AI running coach` (30)
-  - Alt: `Injury-aware AI run coach` (25)
+- **Subtitle** (≤30): `Your friendly running coach` (27)
+  - Alt: `Your daily running coach` (24)
 
 ## Promotional text (≤170, editable anytime without review)
 ```
-Your injury-aware otter coach: gentle daily nudges toward your step goal, smart run/rest guidance, and a kind weekly review. Never shame, always progress.
+Meet Buddy, your friendly running coach. Daily nudges toward your step goal, smart run/rest tips, and a kind weekly review.
 ```
 
 ## Keywords (≤100 chars, comma-separated, no spaces, singular)
@@ -28,30 +28,27 @@ run,steps,counter,fitness,jog,jogging,training,5k,10k,walk,marathon,health,pace,
 
 ## Description (≤4000)
 ```
-Meet Buddy, your friendly AI running coach. 🐾
+Meet Buddy, your friendly running coach. 🐾
 
-Otterpace helps you build a running and movement habit without the guilt. Buddy, your mood-reactive otter coach, reads your activity from Apple Health and gives practical, injury-aware guidance every day. Never shame, always encouragement.
+Otterpace turns daily movement into steady, guilt-free progress. Buddy reads your activity from Apple Health and gives simple, encouraging guidance every day.
 
-WHAT BUDDY DOES
-• Daily step goal: a clean dashboard tracks your steps, distance, and active minutes toward a goal you set.
-• Injury-aware coaching: clear run/rest advice that eases off when your training load spikes. No diagnoses, just sensible, conservative guidance.
-• Ask Buddy anything: "Can I run or should I rest?", "Am I ramping up too fast?", "My knee hurts after my run." Get a kind, practical answer tuned to your week.
-• Weekly review: what went well, what changed, your mileage, and one focus for next week.
-• Activity history: recent runs and walks, grouped by week.
+• Daily step goal: a clean dashboard for steps, distance, and active minutes.
+• Ask Buddy: quick, practical answers like "Run or rest today?"
+• Smart run/rest tips: Buddy eases off when your training load spikes.
+• Weekly review: what went well, and one focus for next week.
+• Activity history: recent runs and walks, by week.
 • Gentle reminders: optional nudges to move, on your schedule.
 
-YOUR HEALTH DATA STAYS ON YOUR DEVICE
-Apple Health data is read on your device and is never uploaded. No account is required to start. Otterpace is open source, so you can read exactly what it does.
+Your Apple Health data stays on your device and is never uploaded. No account required. Otterpace is open source.
 
-BRING YOUR OWN AI (OPTIONAL)
-Connect your own AI key for real, conversational coaching, or use the built-in coach, which works offline either way.
+Optional: connect your own AI key for richer, conversational coaching, or use the built-in coach offline.
 
-Otterpace offers general fitness guidance, not medical advice. If you're in pain or have a medical condition, please talk to a clinician.
+Otterpace offers general fitness guidance, not medical advice.
 ```
 
 ## What's New (version 1.0)
 ```
-First release! Meet Buddy, your injury-aware AI running coach: a daily step-goal dashboard, smart run/rest coaching, the Ask Buddy chat, a weekly review, activity history, and gentle movement reminders.
+First release: meet Buddy, your friendly running coach. Daily step goal, Ask Buddy chat, smart run/rest tips, weekly review, activity history, and gentle reminders.
 ```
 
 ## URLs & metadata
