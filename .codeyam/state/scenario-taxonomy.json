@@ -63,13 +63,16 @@
     },
     "AskCoachView": {
       "empty": {
-        "status": "added"
+        "status": "n-a",
+        "reason": "Demonstrated by the ask-coach-* application scenarios that render AskCoachView at the / route (coach tab): empty-chat (empty), run-or-rest (single/typical), knee-pain & race-taper (edge), and the seeded opening exchange (key-interaction send result). AskCoachView is a tab sub-view of the / ContentView entry point and cannot be isolated independently on this no-isolation Swift stack, so per-view taxonomy defers coverage to those entry-point app scenarios."
       },
       "single": {
-        "status": "added"
+        "status": "n-a",
+        "reason": "Demonstrated by the ask-coach-* application scenarios that render AskCoachView at the / route (coach tab): empty-chat (empty), run-or-rest (single/typical), knee-pain & race-taper (edge), and the seeded opening exchange (key-interaction send result). AskCoachView is a tab sub-view of the / ContentView entry point and cannot be isolated independently on this no-isolation Swift stack, so per-view taxonomy defers coverage to those entry-point app scenarios."
       },
       "typical": {
-        "status": "added"
+        "status": "n-a",
+        "reason": "Demonstrated by the ask-coach-* application scenarios that render AskCoachView at the / route (coach tab): empty-chat (empty), run-or-rest (single/typical), knee-pain & race-taper (edge), and the seeded opening exchange (key-interaction send result). AskCoachView is a tab sub-view of the / ContentView entry point and cannot be isolated independently on this no-isolation Swift stack, so per-view taxonomy defers coverage to those entry-point app scenarios."
       },
       "many": {
         "status": "n-a",
@@ -80,14 +83,16 @@
         "reason": "CoachEngine replies are computed synchronously on send; there is no async/pending state."
       },
       "edge": {
-        "status": "added"
+        "status": "n-a",
+        "reason": "Demonstrated by the ask-coach-* application scenarios that render AskCoachView at the / route (coach tab): empty-chat (empty), run-or-rest (single/typical), knee-pain & race-taper (edge), and the seeded opening exchange (key-interaction send result). AskCoachView is a tab sub-view of the / ContentView entry point and cannot be isolated independently on this no-isolation Swift stack, so per-view taxonomy defers coverage to those entry-point app scenarios."
       },
       "error": {
         "status": "n-a",
         "reason": "BYOK gating added a real error path (keyed transient network/server failure -> honest retry bubble, AskCoachView.submit catch), but it is only reachable via a live network failure with a connected key; there is no offline preview seed hook, so it cannot be captured as a static seeded scenario."
       },
       "key-interaction": {
-        "status": "added"
+        "status": "n-a",
+        "reason": "Demonstrated by the ask-coach-* application scenarios that render AskCoachView at the / route (coach tab): empty-chat (empty), run-or-rest (single/typical), knee-pain & race-taper (edge), and the seeded opening exchange (key-interaction send result). AskCoachView is a tab sub-view of the / ContentView entry point and cannot be isolated independently on this no-isolation Swift stack, so per-view taxonomy defers coverage to those entry-point app scenarios."
       }
     },
     "ContentView": {

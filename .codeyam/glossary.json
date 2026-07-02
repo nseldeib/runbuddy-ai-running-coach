@@ -93,13 +93,12 @@
     }
   },
   {
-    "description": "The Ask Coach title bar: a small Buddy avatar beside the screen name and an honest 'mock coach' subtitle.",
+    "description": "The Ask Coach title bar: a text-only screen name and an honest 'mock coach' subtitle naming Buddy, plus a trailing Weekly Review pill. No mascot here so Buddy appears once per screen, on each coach reply.",
     "filePath": "Sources/AppCore/AskCoachHeader.swift",
     "name": "AskCoachHeader",
-    "untestabilityReason": {
-      "justification": "Native SwiftUI view; no component-isolation harness on this stack, so it is shown via the ask-coach-run-or-rest application scenario.",
-      "kind": "no-isolation-harness"
-    }
+    "scenarios": [
+      "askcoachheader-connected"
+    ]
   },
   {
     "description": "The compose bar pinned to the bottom of the Ask Coach screen: a text field bound to the parent's draft and a send button that activates only when the draft has non-whitespace content.",

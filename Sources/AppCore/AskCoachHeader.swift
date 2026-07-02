@@ -1,15 +1,15 @@
 import SwiftUI
 
-// The Ask Coach screen's title bar: a small Buddy avatar beside the screen name
-// and a subtitle reflecting the coaching mode. A trailing "Weekly" pill opens
-// the generated Weekly Review recap.
+// The Ask Coach screen's title bar: a text-only title and a subtitle that names
+// Buddy and reflects the coaching mode. A trailing "Weekly" pill opens the
+// generated Weekly Review recap. Buddy's mascot is intentionally omitted here so
+// it appears exactly once per screen — the mood-reactive avatar on each reply.
 struct AskCoachHeader: View {
     var connected: Bool = false
     var onWeeklyReview: () -> Void = {}
 
     var body: some View {
-        HStack(spacing: 10) {
-            PuffyBuddy(mood: .ready, size: 34)
+        HStack {
             VStack(alignment: .leading, spacing: 1) {
                 Text("Ask Coach")
                     .font(Typography.title3)

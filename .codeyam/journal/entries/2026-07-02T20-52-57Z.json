@@ -1,0 +1,131 @@
+{
+  "timestamp": "2026-07-02T20:52:57Z",
+  "title": "Subtle Buddy: Text-Only Ask Coach Header",
+  "type": "feature",
+  "userRequest": "## Summary\n\nIn the Ask Coach tab the Buddy mascot currently renders twice on screen at\nonce: a 34pt `PuffyBuddy` in the header (`AskCoachHeader.swift:12`) and a 30pt\nmood-reactive `PuffyBuddy` leading every coach reply (`ChatBubble.swift:26`).\nBecause coach and user messages strictly alternate (each question yields exactly\none reply; the \"thinking…\" placeholder is replaced in place, never a second\nbubble), any single exchange shows the mascot twice — which reads as too much.\nThis change drops the mascot from the header, making it text-only, so Buddy\nappears exactly **once** per screen: the mood-reactive avatar that leads each\ncoach reply, where the mood signal is most meaningful. The brand stays intact —\nthe header still names Buddy in its subtitle, and the mascot remains the visual\nlead of every answer.\n\n## Key Decisions\n\n- **Keep the per-message mascot, drop the header mascot** — chosen over dropping\n  the per-message avatar because the 30pt `PuffyBuddy` on each coach reply is\n  mood-reactive (`message.mood`), so it carries live coaching-tone signal that a\n  fixed `.ready` header avatar does not. Anchoring the single remaining instance\n  to the replies keeps the most informative version.\n- **Do NOT use iMessage-style \"avatar only on first of a run\" grouping** — it\n  was considered and rejected: messages strictly alternate, so every coach reply\n  is already a run of one and such grouping would be a no-op (the avatar would\n  still show on every reply). The redundancy is header-vs-message, not\n  message-vs-message, so the fix is at the header.\n- **Header becomes text-only, not restyled with an icon** — keep the change\n  minimal and on-brand. The subtitle (\"Buddy • AI coach\" / \"Buddy\") already\n  names the mascot, so brand identity is preserved textually without a\n  competing glyph. The trailing \"Weekly\" pill and its behavior are unchanged.\n\n## Implementation\n\n### 1. Remove the mascot from the Ask Coach header\n\n**File**: `Sources/AppCore/AskCoachHeader.swift`\n\nRemove the leading `PuffyBuddy(mood: .ready, size: 34)` (line 12) so the header\nopens directly with the title/subtitle `VStack`. Adjust the outer `HStack`\nlayout so the text-only header still reads as a proper title bar:\n\n- Drop the now-oversized `spacing: 10` on the root `HStack` (it existed to gap\n  the avatar from the text) — the title `VStack` becomes the leading element and\n  should sit at the leading padding edge. Keep the `Spacer()` and the trailing\n  \"Weekly\" button exactly as-is.\n- Leave the subtitle logic untouched: it still shows `connected ? \"Buddy • AI\n  coach\" : \"Buddy\"`, preserving the Buddy name and the connected/locked\n  distinction.\n- Update the file's top doc comment (lines 3–5), which currently describes \"a\n  small Buddy avatar beside the screen name,\" to reflect the text-only title bar.\n\nNet effect: the header is `Ask Coach` / `Buddy • AI coach` on the left, the\nWeekly pill on the right, and no mascot.\n\n### 2. Leave the coach-reply mascot unchanged\n\n**File**: `Sources/AppCore/ChatBubble.swift`\n\nNo change. The 30pt mood-reactive `PuffyBuddy(mood: message.mood, size: 30)` on\nline 26 stays — it is now the single on-screen Buddy instance. Confirm the\nexisting mood tinting (bubble fill/border to `message.mood.accent`, lines 44–52)\nand the amber safety shield continue to work as before.\n\n## Reused existing code\n\n- `PuffyBuddy` from `Sources/AppCore/PuffyBuddy.swift` (glossary entry:\n  `PuffyBuddy`) — the procedural mascot view; retained on coach replies, removed\n  from the header.\n- `AskCoachHeader` from `Sources/AppCore/AskCoachHeader.swift` (glossary entry:\n  `AskCoachHeader`) — the file being edited.\n- `Typography` / `Palette` (`Theme.swift`) — existing title/subtitle fonts and\n  ink/subtle colors already used by the header; no new styling primitives needed.\n- `BuddyMood` (glossary entry: `BuddyMood`) — the per-reply mood driving the\n  retained avatar; unchanged.\n\n## Scenarios to Demonstrate\n\n- **Ask Coach — single exchange (happy path)**: one user question + one coach\n  reply. Verifies the mascot now appears exactly once (on the reply) with a\n  text-only header. This is the core before/after (re-capture of the existing\n  `ask-coach-*` scenarios, e.g. `ask-coach-run-or-rest`).\n- **Ask Coach — empty chat**: connected, no messages yet. Header is text-only;\n  the large empty-state mascot (`AskCoachEmptyState`, 96pt) is the only Buddy,\n  confirming the empty state is unaffected.\n- **Ask Coach — locked (no AI key)**: the connect-key CTA state. Header subtitle\n  reads \"Buddy\"; confirms the text-only header renders in the locked variant and\n  the locked-state mascot is untouched.\n- **Ask Coach — safety-flagged reply** (e.g. `ask-coach-knee-pain`): a coach\n  reply carrying `safetyFlag`. Confirms the retained per-message mascot plus the\n  amber \"SAFETY FIRST\" shield and mood tint still render correctly with the new\n  header.\n- **Ask Coach — multi-turn thread**: several alternating exchanges. Confirms the\n  mascot appears once per coach reply (not doubled with a header instance) down\n  the whole thread.",
+  "description": "Removed the 34pt PuffyBuddy mascot from the Ask Coach header (AskCoachHeader.swift), making it a text-only title bar (Ask Coach / Buddy - AI coach, with the Weekly pill unchanged). Buddy now appears exactly once per screen - the mood-reactive avatar leading each coach reply - instead of twice per exchange. No app logic or data-model changes; recaptured the seven Ask Coach app scenarios and added an isolated AskCoachHeader component scenario to reflect the change.",
+  "modifiedFiles": [
+    {
+      "path": ".codeyam/dependency-graph.json",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/glossary.json",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/plans/subtle-buddy-ask-coach-header.md\t.codeyam/plans/completed/subtle-buddy-ask-coach-header.md",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/ask-coach-empty-chat.json",
+      "status": "deleted"
+    },
+    {
+      "path": ".codeyam/scenarios/ask-coach-hit-10k.json",
+      "status": "deleted"
+    },
+    {
+      "path": ".codeyam/scenarios/ask-coach-knee-pain.json",
+      "status": "deleted"
+    },
+    {
+      "path": ".codeyam/scenarios/ask-coach-mileage-spike.json",
+      "status": "deleted"
+    },
+    {
+      "path": ".codeyam/scenarios/ask-coach-no-key-connect-prompt.json",
+      "status": "deleted"
+    },
+    {
+      "path": ".codeyam/scenarios/ask-coach-race-taper.json",
+      "status": "deleted"
+    },
+    {
+      "path": ".codeyam/scenarios/ask-coach-run-or-rest.json",
+      "status": "deleted"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/ask-coach-empty-chat--iphone-16.png",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/ask-coach-hit-10k--iphone-16.png",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/ask-coach-knee-pain--iphone-16.png",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/ask-coach-mileage-spike--iphone-16.png",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/ask-coach-no-key-connect-prompt--iphone-16.png",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/ask-coach-race-taper--iphone-16.png",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/ask-coach-run-or-rest--iphone-16.png",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/state/scenario-taxonomy.json",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/state/step-highwater.json",
+      "status": "modified"
+    },
+    {
+      "path": "App/App.swift",
+      "status": "modified"
+    },
+    {
+      "path": "Sources/AppCore/AskCoachHeader.swift",
+      "status": "modified"
+    },
+    {
+      "path": ".codeyam/plans/completed/subtle-buddy-ask-coach-header.json",
+      "status": "added"
+    },
+    {
+      "path": ".codeyam/scenarios/askcoachheader-connected.json",
+      "status": "added"
+    },
+    {
+      "path": ".codeyam/scenarios/screenshots/askcoachheader-connected--iphone-16.png",
+      "status": "added"
+    },
+    {
+      "path": "Sources/AppCore/CodeyamIsolated/AskCoachHeaderIsolated.swift",
+      "status": "added"
+    },
+    {
+      "path": "Sources/AppCore/CodeyamIsolated/CodeyamIsolationHost.swift",
+      "status": "added"
+    }
+  ],
+  "scenarioScreenshots": [
+    {
+      "name": "AskCoachHeader - Connected",
+      "screenshotPath": "askcoachheader-connected--iphone-16.png"
+    }
+  ],
+  "testResults": {
+    "total": 168,
+    "passed": 168,
+    "failed": 0,
+    "runners": [
+      {
+        "name": "tests",
+        "total": 168,
+        "passed": 168
+      }
+    ]
+  }
+}

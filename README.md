@@ -250,11 +250,11 @@ States captured as runnable scenarios with codeyam-editor:
 
 ![App Icon — Showcase](.codeyam/scenarios/screenshots/app-icon-showcase--iphone-16.png)
 
-### Ask Coach — Empty Chat
+### AskCoachHeader - Connected
 
-![Ask Coach — Empty Chat](.codeyam/scenarios/screenshots/ask-coach-empty-chat--iphone-16.png)
+![AskCoachHeader - Connected](.codeyam/scenarios/screenshots/askcoachheader-connected--iphone-16.png)
 
-### Ask Coach — Hit 10K
+### Buddy Puffy — Loader
 
-![Ask Coach — Hit 10K](.codeyam/scenarios/screenshots/ask-coach-hit-10k--iphone-16.png)
+![Buddy Puffy — Loader](.codeyam/scenarios/screenshots/buddy-puffy-loader--iphone-16.png)
 <!-- codeyam:scenario-gallery:end -->

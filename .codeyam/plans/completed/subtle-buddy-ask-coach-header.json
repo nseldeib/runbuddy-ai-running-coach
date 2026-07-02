@@ -1,0 +1,16 @@
+{
+  "completedAt": "2026-07-02T20:52:57Z",
+  "createdAt": "2026-07-01T12:00:00Z",
+  "deliverables": [
+    "App/App.swift",
+    "Sources/AppCore/AskCoachHeader.swift",
+    "Sources/AppCore/CodeyamIsolated/AskCoachHeaderIsolated.swift",
+    "Sources/AppCore/CodeyamIsolated/CodeyamIsolationHost.swift",
+    "Sources/AppCore/SettingsView.swift"
+  ],
+  "journalTimestamp": "2026-07-02T20:52:57Z",
+  "mode": "ui",
+  "planFile": "completed/subtle-buddy-ask-coach-header.md",
+  "slug": "subtle-buddy-ask-coach-header",
+  "title": "Subtle Buddy: Text-Only Ask Coach Header"
+}

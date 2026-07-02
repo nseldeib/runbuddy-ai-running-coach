@@ -1,0 +1,16 @@
+{
+  "name": "AskCoachHeader - Connected",
+  "id": "b93ab970-9e5f-41b4-9dd1-909c048f23ea",
+  "dimensions": [
+    "iPhone 16"
+  ],
+  "mocks": {},
+  "deviceState": {
+    "launchEnv": {
+      "CODEYAM_ISOLATE_COMPONENT": "AskCoachHeader",
+      "CODEYAM_ISOLATE_SCENARIO": "Connected"
+    }
+  },
+  "componentName": "AskCoachHeader",
+  "scenarioType": "component"
+}

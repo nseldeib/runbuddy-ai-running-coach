@@ -8,16 +8,16 @@
   "mocks": {},
   "deviceState": {
     "preferences": {
+      "rbConnected": true,
+      "rbDate": "2026-06-22",
+      "rbCoachConnected": true,
+      "rbRacesJSON": "[{\"id\":\"11111111-1111-1111-1111-111111111111\",\"name\":\"October Trail Half\",\"distanceMiles\":13.1,\"date\":\"2026-06-27\",\"location\":\"Bend, OR\"}]",
+      "rbAskSeedQuestion": "Make me a plan for my race",
       "rbGoalSteps": 10000,
       "rbStartScreen": "",
-      "rbDate": "2026-06-22",
-      "rbAskSeedQuestion": "Make me a plan for my race",
-      "rbCoachConnected": true,
-      "rbConnected": true,
-      "rbSteps": 6400,
-      "rbRacesJSON": "[{\"id\":\"11111111-1111-1111-1111-111111111111\",\"name\":\"October Trail Half\",\"distanceMiles\":13.1,\"date\":\"2026-06-27\",\"location\":\"Bend, OR\"}]",
+      "rbDistanceMiles": 3.0,
       "rbStartTab": "coach",
-      "rbDistanceMiles": 3.0
+      "rbSteps": 6400
     }
   },
   "scenarioType": "application",
